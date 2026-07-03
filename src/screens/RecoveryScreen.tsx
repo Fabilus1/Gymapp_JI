@@ -19,11 +19,11 @@ const MUSCLES: MuscleGroup[] = [
   'forearms',
 ]
 
-function daysSince(iso: string): string {
+function daysSince(iso: string): string | null {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
-  if (days === 0) return 'today'
-  if (days === 1) return '1 day ago'
-  return `${days} days ago`
+  if (days === 0) return null // status already reads "Trained today"
+  if (days === 1) return 'Trained 1 day ago'
+  return `Trained ${days} days ago`
 }
 
 export default function RecoveryScreen({ sessions }: { sessions: WorkoutSession[] }) {
@@ -47,6 +47,12 @@ export default function RecoveryScreen({ sessions }: { sessions: WorkoutSession[
         {MUSCLES.map((muscle) => {
           const r = muscleRecovery(muscle, sessions, log)
           const isLogging = logging === muscle
+          const detail = [
+            r.lastTrained ? daysSince(r.lastTrained) : 'Not trained yet',
+            r.soreness !== null ? `Soreness ${r.soreness}/5` : null,
+          ]
+            .filter(Boolean)
+            .join(' · ')
           return (
             <li key={muscle} className="recovery__item">
               <button
@@ -55,10 +61,7 @@ export default function RecoveryScreen({ sessions }: { sessions: WorkoutSession[
               >
                 <div className="recovery__row-main">
                   <span className="recovery__muscle">{muscle}</span>
-                  <span className="recovery__detail">
-                    {r.lastTrained ? `Trained ${daysSince(r.lastTrained)}` : 'Not trained yet'}
-                    {r.soreness !== null && ` · soreness ${r.soreness}/5`}
-                  </span>
+                  {detail && <span className="recovery__detail">{detail}</span>}
                 </div>
                 <span
                   className={

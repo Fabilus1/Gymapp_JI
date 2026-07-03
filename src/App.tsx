@@ -32,7 +32,7 @@ export default function App() {
         onSettingsClick={settingsOpen ? undefined : () => setSettingsOpen(true)}
         onBack={settingsOpen ? () => setSettingsOpen(false) : undefined}
       />
-      <main className="screen">
+      <main className="screen" key={settingsOpen ? 'settings' : tab}>
         {settingsOpen ? (
           <SettingsScreen settings={data.settings} onSettingsChange={data.updateSettings} />
         ) : (
