@@ -1,23 +1,21 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { SPLITS } from '../data/splits'
-import { getSettings, saveSettings, exportAllData, importAllData } from '../db/db'
+import { exportAllData, importAllData } from '../db/db'
 import type { Settings, SplitId } from '../types'
 import './SettingsScreen.css'
 
-export default function SettingsScreen() {
-  const [settings, setSettings] = useState<Settings | null>(null)
+export default function SettingsScreen({
+  settings,
+  onSettingsChange,
+}: {
+  settings: Settings
+  onSettingsChange: (settings: Settings) => void
+}) {
   const [status, setStatus] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    getSettings().then(setSettings)
-  }, [])
-
-  async function handleSplitChange(split: SplitId) {
-    if (!settings) return
-    const next = { ...settings, split, rotationIndex: 0 }
-    setSettings(next)
-    await saveSettings(next)
+  function handleSplitChange(split: SplitId) {
+    onSettingsChange({ ...settings, split, rotationIndex: 0 })
   }
 
   async function handleExport() {
@@ -41,15 +39,12 @@ export default function SettingsScreen() {
     try {
       const text = await file.text()
       await importAllData(text)
-      const fresh = await getSettings()
-      setSettings(fresh)
-      setStatus('Backup restored.')
+      // Reload so every screen rehydrates from the imported data.
+      window.location.reload()
     } catch (err) {
       setStatus(err instanceof Error ? err.message : 'Import failed.')
     }
   }
-
-  if (!settings) return null
 
   return (
     <div className="settings">
@@ -74,7 +69,7 @@ export default function SettingsScreen() {
 
       <section className="settings__section">
         <h2 className="settings__heading">Units</h2>
-        <p className="settings__value">{settings.units}</p>
+        <p className="settings__value">lb</p>
       </section>
 
       <section className="settings__section">
@@ -92,7 +87,7 @@ export default function SettingsScreen() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="application/json"
+            accept="application/json,.json"
             style={{ display: 'none' }}
             onChange={(e) => {
               const file = e.target.files?.[0]

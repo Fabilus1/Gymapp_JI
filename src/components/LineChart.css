@@ -1,0 +1,35 @@
+.chart {
+  display: flex;
+  gap: 10px;
+}
+
+.chart__scale {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  padding: 2px 0 18px;
+  text-align: right;
+  min-width: 28px;
+}
+
+.chart__plot {
+  flex: 1;
+  min-width: 0;
+}
+
+.chart__plot svg {
+  width: 100%;
+  height: 140px;
+  display: block;
+}
+
+.chart__dates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}

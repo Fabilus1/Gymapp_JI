@@ -114,6 +114,104 @@ export const EXERCISES: Exercise[] = [
   { id: 'barbell-reverse-wrist-curl', name: 'Barbell Reverse Wrist Curl', muscle: 'forearms', type: 'isolation', equipment: 'barbell', repRange: [12, 20], increment: 2.5, cue: "Same setup as the wrist curl with an overhand grip, small range, don't use momentum." },
   { id: 'dumbbell-wrist-curl', name: 'Dumbbell Wrist Curl', muscle: 'forearms', type: 'isolation', equipment: 'dumbbell', repRange: [12, 20], increment: 2.5, cue: 'Same pattern as the barbell version, train each side independently.' },
   { id: 'farmers-carry', name: "Farmer's Carry", muscle: 'forearms', type: 'isolation', equipment: 'dumbbell', repRange: [12, 20], increment: 5, cue: 'Heavy dumbbells at your sides, walk with a tall posture and a tight grip for distance or time.' },
+
+  // --- Niche & variation movements ---
+
+  // Chest
+  { id: 'pec-deck', name: 'Pec Deck', muscle: 'chest', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Elbows or forearms on the pads, sweep together in front of the chest, control the stretch on the return.' },
+  { id: 'chest-dip', name: 'Chest Dip', muscle: 'chest', type: 'compound', equipment: 'bodyweight', repRange: [6, 10], increment: 5, cue: 'Lean the torso forward, flare elbows slightly, lower until a stretch across the chest, press up and in.' },
+  { id: 'smith-machine-bench-press', name: 'Smith Machine Bench Press', muscle: 'chest', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Set the bench so the bar path meets your lower chest, same setup cues as a barbell bench.' },
+  { id: 'smith-machine-incline-press', name: 'Smith Machine Incline Press', muscle: 'chest', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Bench at ~30° under the bar, touch the upper chest, drive up without bouncing.' },
+  { id: 'low-to-high-cable-fly', name: 'Low-to-High Cable Fly', muscle: 'chest', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Pulleys at the bottom, sweep up and in toward eye level, biases the upper chest.' },
+  { id: 'floor-press', name: 'Floor Press', muscle: 'chest', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Bench press from the floor — triceps touch down briefly each rep, press without bouncing the elbows.' },
+
+  // Back
+  { id: 'rack-pull', name: 'Rack Pull', muscle: 'back', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Deadlift from knee-height pins, flat back, drive hips through and squeeze the upper back at lockout.' },
+  { id: 'sumo-deadlift', name: 'Sumo Deadlift', muscle: 'back', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Wide stance, toes out, shins vertical against the bar, spread the floor as you drive up.' },
+  { id: 'trap-bar-deadlift', name: 'Trap Bar Deadlift', muscle: 'back', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Stand centered in the bar, neutral grip at your sides, push the floor away with a tall chest.' },
+  { id: 'snatch-grip-deadlift', name: 'Snatch-Grip Deadlift', muscle: 'back', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Very wide grip forces a deeper start position — extra upper-back and trap work, keep the lats tight.' },
+  { id: 'deficit-deadlift', name: 'Deficit Deadlift', muscle: 'back', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Stand on a low plate or block, longer range of motion, stay patient off the floor with a flat back.' },
+  { id: 'meadows-row', name: 'Meadows Row', muscle: 'back', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Landmine bar, overhand grip on the sleeve, hinge and row the elbow high and out.' },
+  { id: 'seal-row', name: 'Seal Row', muscle: 'back', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 10, cue: 'Lying face down on an elevated bench, row the bar to the bench — zero momentum, all back.' },
+  { id: 'machine-high-row', name: 'Machine High Row', muscle: 'back', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Chest on the pad, pull the handles down and back toward your hips, squeeze the lats.' },
+  { id: 'machine-row', name: 'Machine Row', muscle: 'back', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Chest supported, pull straight back, drive the elbows behind you without shrugging.' },
+  { id: 'single-arm-cable-row', name: 'Single-Arm Cable Row', muscle: 'back', type: 'compound', equipment: 'cable', repRange: [6, 10], increment: 5, cue: 'Seated or staggered stance, row to the hip, let the shoulder blade glide forward on the stretch.' },
+  { id: 'neutral-grip-lat-pulldown', name: 'Neutral-Grip Lat Pulldown', muscle: 'back', type: 'compound', equipment: 'cable', repRange: [6, 10], increment: 5, cue: 'Palms facing, elbows track in front of the torso, pull to the upper chest with a tall spine.' },
+  { id: 'single-arm-lat-pulldown', name: 'Single-Arm Lat Pulldown', muscle: 'back', type: 'compound', equipment: 'cable', repRange: [6, 10], increment: 5, cue: 'D-handle overhead, pull the elbow down to your side, feel the lat lengthen fully at the top.' },
+  { id: 'dumbbell-pullover', name: 'Dumbbell Pullover', muscle: 'back', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Upper back across a bench, lower the dumbbell behind your head with soft elbows, pull over with the lats.' },
+  { id: 'back-extension', name: 'Back Extension', muscle: 'back', type: 'isolation', equipment: 'bodyweight', repRange: [10, 15], increment: 2.5, cue: '45° pad at the hip crease, hinge down with a flat back, squeeze glutes and erectors to rise.' },
+
+  // Shoulders
+  { id: 'reverse-pec-deck', name: 'Reverse Pec Deck', muscle: 'shoulders', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Face the pad, sweep the arms back with slight elbow bend, squeeze the rear delts not the traps.' },
+  { id: 'cable-rear-delt-fly', name: 'Cable Rear Delt Fly', muscle: 'shoulders', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Cross the cables, pull apart at shoulder height, keep the movement in the rear delts.' },
+  { id: 'barbell-upright-row', name: 'Barbell Upright Row', muscle: 'shoulders', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Grip just outside shoulder width, lead with the elbows to chest height — stop lower if shoulders complain.' },
+  { id: 'landmine-press', name: 'Landmine Press', muscle: 'shoulders', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Bar in a landmine, press up and forward at an angle, brace the core in a half-kneeling or standing stance.' },
+  { id: 'push-press', name: 'Push Press', muscle: 'shoulders', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 5, cue: 'Shallow knee dip, drive the bar off the shoulders with the legs, lock out overhead.' },
+  { id: 'cable-y-raise', name: 'Cable Y-Raise', muscle: 'shoulders', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Raise the cables up and out into a Y, thumbs up, keep the traps quiet.' },
+
+  // Traps
+  { id: 'trap-bar-shrug', name: 'Trap Bar Shrug', muscle: 'traps', type: 'isolation', equipment: 'barbell', repRange: [10, 15], increment: 2.5, cue: 'Neutral grip at your sides lets you load heavier — shrug straight up, pause at the top.' },
+  { id: 'smith-machine-shrug', name: 'Smith Machine Shrug', muscle: 'traps', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Fixed bar path, shrug straight up toward the ears, controlled negative.' },
+
+  // Quads
+  { id: 'pendulum-squat', name: 'Pendulum Squat', muscle: 'quads', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Arc path keeps you upright — sink deep, drive through the whole foot, knees tracking forward.' },
+  { id: 'belt-squat', name: 'Belt Squat', muscle: 'quads', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Load hangs from the hips so the spine stays unloaded — squat deep and stay tall.' },
+  { id: 'smith-machine-squat', name: 'Smith Machine Squat', muscle: 'quads', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Feet slightly forward of the bar, sit straight down, let the fixed path bias the quads.' },
+  { id: 'zercher-squat', name: 'Zercher Squat', muscle: 'quads', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Bar in the crook of the elbows, stay upright, brace hard — brutal on the core and upper back too.' },
+  { id: 'safety-bar-squat', name: 'Safety Bar Squat', muscle: 'quads', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Cambered bar sits higher and pushes you forward — fight to stay upright, drive through mid-foot.' },
+  { id: 'box-squat', name: 'Box Squat', muscle: 'quads', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Sit back to a box just below parallel, pause briefly without rocking, drive up explosively.' },
+  { id: 'reverse-lunge-dumbbell', name: 'Reverse Lunge (Dumbbell)', muscle: 'quads', type: 'compound', equipment: 'dumbbell', repRange: [6, 10], increment: 5, cue: 'Step back, drop the rear knee, drive through the front heel — easier on the knees than forward lunges.' },
+  { id: 'single-leg-leg-press', name: 'Single-Leg Leg Press', muscle: 'quads', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'One foot centered on the platform, full range, keep the knee tracking over the toes.' },
+  { id: 'hip-adduction-machine', name: 'Hip Adduction Machine', muscle: 'quads', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Squeeze the pads together with the inner thighs, pause at the squeeze, control the opening.' },
+
+  // Hamstrings
+  { id: 'stiff-leg-deadlift', name: 'Stiff-Leg Deadlift', muscle: 'hamstrings', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 10, cue: 'Straighter knees than an RDL, hinge until the hamstrings are fully stretched, keep the bar close.' },
+  { id: 'dumbbell-rdl', name: 'Dumbbell RDL', muscle: 'hamstrings', type: 'compound', equipment: 'dumbbell', repRange: [6, 10], increment: 5, cue: 'Dumbbells slide down the front of the thighs, hips back, flat back, stand up by squeezing the glutes.' },
+  { id: 'sliding-leg-curl', name: 'Sliding Leg Curl', muscle: 'hamstrings', type: 'isolation', equipment: 'bodyweight', repRange: [10, 15], increment: 2.5, cue: 'Heels on sliders or a towel, bridge the hips, curl the heels in without dropping the hips.' },
+
+  // Glutes
+  { id: 'machine-hip-thrust', name: 'Machine Hip Thrust', muscle: 'glutes', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Belt or pad over the hips, drive through the heels, full lockout with a posterior tilt at the top.' },
+  { id: 'curtsy-lunge-dumbbell', name: 'Curtsy Lunge (Dumbbell)', muscle: 'glutes', type: 'compound', equipment: 'dumbbell', repRange: [6, 10], increment: 5, cue: 'Step back and across behind the front leg, keep hips square, drive up through the front heel.' },
+  { id: 'machine-glute-kickback', name: 'Machine Glute Kickback', muscle: 'glutes', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Chest on the pad, push the platform back and up with one leg, squeeze at full hip extension.' },
+
+  // Calves
+  { id: 'smith-machine-calf-raise', name: 'Smith Machine Calf Raise', muscle: 'calves', type: 'isolation', equipment: 'machine', repRange: [12, 20], increment: 2.5, cue: 'Balls of the feet on a block under the bar, full stretch at the bottom, pause at the top.' },
+  { id: 'single-leg-calf-raise', name: 'Single-Leg Calf Raise (Dumbbell)', muscle: 'calves', type: 'isolation', equipment: 'dumbbell', repRange: [12, 20], increment: 2.5, cue: 'Dumbbell on the working side, ball of the foot on a step, full range one leg at a time.' },
+  { id: 'tibialis-raise', name: 'Tibialis Raise', muscle: 'calves', type: 'isolation', equipment: 'bodyweight', repRange: [12, 20], increment: 2.5, cue: 'Heels on the ground, back against a wall, lift the toes as high as possible — shin armor for knees.' },
+
+  // Biceps
+  { id: 'ez-bar-curl', name: 'EZ-Bar Curl', muscle: 'biceps', type: 'isolation', equipment: 'barbell', repRange: [10, 15], increment: 2.5, cue: 'Angled grip is easier on the wrists — same rules as a barbell curl, no swinging.' },
+  { id: 'concentration-curl', name: 'Concentration Curl', muscle: 'biceps', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Elbow braced against the inner thigh, curl slowly, squeeze hard at the top.' },
+  { id: 'spider-curl', name: 'Spider Curl', muscle: 'biceps', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Chest on an incline bench, arms hanging straight down, curl without any body movement.' },
+  { id: 'bayesian-cable-curl', name: 'Bayesian Cable Curl', muscle: 'biceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Face away from a low pulley, arm slightly behind the torso — maximum stretch on the long head.' },
+  { id: 'reverse-curl', name: 'Reverse Curl', muscle: 'biceps', type: 'isolation', equipment: 'barbell', repRange: [10, 15], increment: 2.5, cue: 'Overhand grip, curl with the elbows pinned — hits the brachialis and forearms.' },
+  { id: 'cross-body-hammer-curl', name: 'Cross-Body Hammer Curl', muscle: 'biceps', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Neutral grip, curl across the body toward the opposite shoulder, control the way down.' },
+  { id: 'machine-preacher-curl', name: 'Machine Preacher Curl', muscle: 'biceps', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Upper arms flat on the pad, full stretch at the bottom, no bouncing out of the hole.' },
+  { id: 'rope-hammer-curl', name: 'Rope Hammer Curl', muscle: 'biceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Neutral grip on the rope, constant cable tension, elbows fixed at the sides.' },
+
+  // Triceps
+  { id: 'rope-pushdown', name: 'Rope Pushdown', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Split the rope apart at the bottom, elbows pinned, full lockout each rep.' },
+  { id: 'single-arm-cable-tricep-extension', name: 'Single-Arm Cable Tricep Extension (D-Ring Strap)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'D-ring or strap in one hand, elbow pinned at your side, extend fully and control the return — strict, no torso lean.' },
+  { id: 'single-arm-overhead-cable-extension', name: 'Single-Arm Overhead Cable Extension', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Face away from a low pulley, arm overhead, deep stretch behind the head, extend without flaring.' },
+  { id: 'reverse-grip-pushdown', name: 'Reverse-Grip Pushdown', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Underhand grip on a bar, elbows pinned, biases the medial head — usually lighter than a normal pushdown.' },
+  { id: 'jm-press', name: 'JM Press', muscle: 'triceps', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Hybrid of close-grip bench and skull crusher — lower to the chin/neck with elbows forward, press back up.' },
+  { id: 'dumbbell-kickback', name: 'Dumbbell Kickback', muscle: 'triceps', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Torso parallel to the floor, upper arm locked at your side, extend to full lockout and squeeze.' },
+  { id: 'machine-tricep-extension', name: 'Machine Tricep Extension', muscle: 'triceps', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Elbows on the pad, extend through a full range, control the stack on the way back.' },
+  { id: 'bench-dip', name: 'Bench Dip', muscle: 'triceps', type: 'compound', equipment: 'bodyweight', repRange: [6, 10], increment: 5, cue: 'Hands on a bench behind you, hips close to the bench, lower until elbows hit ~90°, add plates on the lap to load.' },
+
+  // Core
+  { id: 'pallof-press', name: 'Pallof Press', muscle: 'core', type: 'isolation', equipment: 'cable', repRange: [12, 20], increment: 2.5, cue: 'Cable at chest height, press straight out and resist the rotation — anti-rotation, not a push.' },
+  { id: 'cable-woodchopper', name: 'Cable Woodchopper', muscle: 'core', type: 'isolation', equipment: 'cable', repRange: [12, 20], increment: 2.5, cue: 'Rotate high-to-low or low-to-high through the trunk, arms stay long, pivot the back foot.' },
+  { id: 'weighted-plank', name: 'Weighted Plank', muscle: 'core', type: 'isolation', equipment: 'bodyweight', repRange: [12, 20], increment: 2.5, cue: 'Plate on the upper back, straight line head to heels — log the hold time in seconds as reps.' },
+  { id: 'copenhagen-plank', name: 'Copenhagen Plank', muscle: 'core', type: 'isolation', equipment: 'bodyweight', repRange: [12, 20], increment: 2.5, cue: 'Side plank with the top foot on a bench — adductor and oblique killer, log seconds as reps.' },
+  { id: 'dragon-flag', name: 'Dragon Flag', muscle: 'core', type: 'isolation', equipment: 'bodyweight', repRange: [12, 20], increment: 2.5, cue: 'Grip the bench behind your head, lower the body as one rigid line from the shoulders, no hip break.' },
+  { id: 'v-up', name: 'V-Up', muscle: 'core', type: 'isolation', equipment: 'bodyweight', repRange: [12, 20], increment: 2.5, cue: 'Fold at the hips, hands meet the feet at the top, lower both halves under control.' },
+
+  // Forearms
+  { id: 'wrist-roller', name: 'Wrist Roller', muscle: 'forearms', type: 'isolation', equipment: 'machine', repRange: [12, 20], increment: 2.5, cue: 'Roll the weight up and back down with full wrist turns, arms out in front — count one full up-down as a rep.' },
+  { id: 'plate-pinch', name: 'Plate Pinch', muscle: 'forearms', type: 'isolation', equipment: 'bodyweight', repRange: [12, 20], increment: 2.5, cue: 'Pinch smooth plates together fingertips-to-thumb — log hold seconds as reps.' },
+  { id: 'dead-hang', name: 'Dead Hang', muscle: 'forearms', type: 'isolation', equipment: 'bodyweight', repRange: [12, 20], increment: 2.5, cue: 'Full grip on the bar, shoulders relaxed but not slack — log hold seconds as reps.' },
+  { id: 'behind-back-cable-wrist-curl', name: 'Behind-the-Back Cable Wrist Curl', muscle: 'forearms', type: 'isolation', equipment: 'cable', repRange: [12, 20], increment: 2.5, cue: 'Bar behind you at arms length, curl the wrists up, constant tension through the range.' },
 ]
 
 export function getExerciseById(id: string): Exercise | undefined {

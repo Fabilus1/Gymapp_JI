@@ -1,0 +1,76 @@
+.progress {
+  padding: 24px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.progress__section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.progress__heading {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.progress__big-number {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.progress__unit {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0;
+}
+
+.progress__entry {
+  display: flex;
+  gap: 10px;
+}
+
+.progress__input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 16px;
+  padding: 10px 12px;
+}
+
+.progress__input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.progress__log {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+.progress__exercise-select {
+  text-align: left;
+  font-size: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hairline);
+  cursor: pointer;
+}
+
+.progress__none {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
