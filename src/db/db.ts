@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { WorkoutSession, BodyWeightEntry, RecoveryEntry, Settings } from '../types'
+import type { WorkoutSession, BodyWeightEntry, RecoveryEntry, Settings, CustomPlan } from '../types'
 
 interface IronLogDB extends DBSchema {
   sessions: { key: string; value: WorkoutSession; indexes: { 'by-date': string } }
@@ -66,6 +66,19 @@ export async function saveInProgressSession(session: WorkoutSession | null): Pro
   }
 }
 
+// ---- Custom plans (Planner) ----
+
+export async function getCustomPlans(): Promise<CustomPlan[]> {
+  const db = await getDb()
+  const stored = await db.get('kv', 'customPlans')
+  return (stored as CustomPlan[] | undefined) ?? []
+}
+
+export async function saveCustomPlans(plans: CustomPlan[]): Promise<void> {
+  const db = await getDb()
+  await db.put('kv', plans, 'customPlans')
+}
+
 // ---- Sessions ----
 
 export async function getAllSessions(): Promise<WorkoutSession[]> {
@@ -116,14 +129,16 @@ interface ExportPayload {
   sessions: WorkoutSession[]
   bodyWeight: BodyWeightEntry[]
   recovery: RecoveryEntry[]
+  customPlans?: CustomPlan[]
 }
 
 export async function exportAllData(): Promise<string> {
-  const [settings, sessions, bodyWeight, recovery] = await Promise.all([
+  const [settings, sessions, bodyWeight, recovery, customPlans] = await Promise.all([
     getSettings(),
     getAllSessions(),
     getAllBodyWeightEntries(),
     getAllRecoveryEntries(),
+    getCustomPlans(),
   ])
   const payload: ExportPayload = {
     exportVersion: EXPORT_VERSION,
@@ -132,6 +147,7 @@ export async function exportAllData(): Promise<string> {
     sessions,
     bodyWeight,
     recovery,
+    customPlans,
   }
   return JSON.stringify(payload, null, 2)
 }
@@ -164,6 +180,7 @@ export async function importAllData(json: string): Promise<void> {
   if (payload.settings) {
     await tx.objectStore('kv').put(payload.settings, 'settings')
   }
+  await tx.objectStore('kv').put(payload.customPlans ?? [], 'customPlans')
 
   await tx.done
 }

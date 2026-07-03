@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import SegmentBar from '../components/SegmentBar'
 import { addRecoveryEntry, getAllRecoveryEntries, newId } from '../db/db'
 import { muscleRecovery, STATUS_LABELS } from '../logic/recovery'
 import type { MuscleGroup, RecoveryEntry, Soreness, WorkoutSession } from '../types'
@@ -47,12 +48,10 @@ export default function RecoveryScreen({ sessions }: { sessions: WorkoutSession[
         {MUSCLES.map((muscle) => {
           const r = muscleRecovery(muscle, sessions, log)
           const isLogging = logging === muscle
-          const detail = [
-            r.lastTrained ? daysSince(r.lastTrained) : 'Not trained yet',
-            r.soreness !== null ? `Soreness ${r.soreness}/5` : null,
+          const readiness = { 'trained-today': 1, recovering: 2, 'almost-ready': 3, ready: 4 }[
+            r.status
           ]
-            .filter(Boolean)
-            .join(' · ')
+          const detail = r.lastTrained ? daysSince(r.lastTrained) : 'Not trained yet'
           return (
             <li key={muscle} className="recovery__item">
               <button
@@ -62,16 +61,25 @@ export default function RecoveryScreen({ sessions }: { sessions: WorkoutSession[
                 <div className="recovery__row-main">
                   <span className="recovery__muscle">{muscle}</span>
                   {detail && <span className="recovery__detail">{detail}</span>}
+                  {r.soreness !== null && (
+                    <span className="recovery__soreness-row">
+                      <span className="recovery__mini-label">Soreness</span>
+                      <SegmentBar value={r.soreness} max={5} tone="danger" />
+                    </span>
+                  )}
                 </div>
-                <span
-                  className={
-                    r.status === 'ready'
-                      ? 'recovery__status recovery__status--ready'
-                      : 'recovery__status'
-                  }
-                >
-                  {STATUS_LABELS[r.status]}
-                </span>
+                <div className="recovery__meter">
+                  <SegmentBar value={readiness} max={4} />
+                  <span
+                    className={
+                      r.status === 'ready'
+                        ? 'recovery__status recovery__status--ready'
+                        : 'recovery__status'
+                    }
+                  >
+                    {STATUS_LABELS[r.status]}
+                  </span>
+                </div>
               </button>
               {isLogging && (
                 <div className="recovery__soreness">

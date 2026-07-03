@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Settings, WorkoutSession } from '../types'
+import type { CustomPlan, Settings, WorkoutSession } from '../types'
 import {
   getSettings,
   saveSettings,
@@ -7,9 +7,11 @@ import {
   saveSession,
   getInProgressSession,
   saveInProgressSession,
+  getCustomPlans,
+  saveCustomPlans,
   newId,
 } from '../db/db'
-import { getCurrentSplitDay, advanceRotation } from '../logic/rotation'
+import { getTodayPlan, advanceRotation } from '../logic/rotation'
 import { suggestNext } from '../logic/progression'
 import { getExerciseById } from '../data/exercises'
 
@@ -18,15 +20,17 @@ const DEFAULT_SET_COUNT = 3
 export function useAppData() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [sessions, setSessions] = useState<WorkoutSession[]>([])
+  const [customPlans, setCustomPlans] = useState<CustomPlan[]>([])
   const [activeSession, setActiveSession] = useState<WorkoutSession | null>(null)
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    Promise.all([getSettings(), getAllSessions(), getInProgressSession()]).then(
-      ([s, all, active]) => {
+    Promise.all([getSettings(), getAllSessions(), getInProgressSession(), getCustomPlans()]).then(
+      ([s, all, active, plans]) => {
         setSettings(s)
         setSessions(all)
         setActiveSession(active)
+        setCustomPlans(plans)
         setLoaded(true)
       }
     )
@@ -37,10 +41,17 @@ export function useAppData() {
     await saveSettings(next)
   }, [])
 
-  /** Builds today's session from the current split day, prefilled with suggested weights/reps. */
+  const updateCustomPlans = useCallback(async (plans: CustomPlan[]) => {
+    setCustomPlans(plans)
+    await saveCustomPlans(plans)
+  }, [])
+
+  /** Builds today's session, prefilled with suggestions where history exists. */
   const startWorkout = useCallback(async () => {
     if (!settings) return
-    const day = getCurrentSplitDay(settings)
+    const plan = getTodayPlan(settings, customPlans)
+    const day = plan.day ?? plan.nextDay // "start anyway" on rest days uses next scheduled day
+    if (!day) return
     const session: WorkoutSession = {
       id: newId(),
       date: new Date().toISOString(),
@@ -48,9 +59,7 @@ export function useAppData() {
       exercises: day.exerciseIds.map((exerciseId) => {
         const exercise = getExerciseById(exerciseId)
         const suggestion = exercise ? suggestNext(exercise, sessions) : null
-        // Only prefill when there's real history — otherwise untouched sets
-        // stay 0/0 and are dropped on finish instead of polluting history.
-        const hasHistory = suggestion?.weight !== null && suggestion !== null
+        const hasHistory = suggestion !== null && suggestion.weight !== null
         const weight = hasHistory ? (suggestion.weight as number) : 0
         const reps = hasHistory ? suggestion.reps : 0
         return {
@@ -61,7 +70,7 @@ export function useAppData() {
     }
     setActiveSession(session)
     await saveInProgressSession(session)
-  }, [settings, sessions])
+  }, [settings, sessions, customPlans])
 
   const updateActiveSession = useCallback(async (session: WorkoutSession) => {
     setActiveSession(session)
@@ -70,9 +79,9 @@ export function useAppData() {
 
   const finishWorkout = useCallback(async () => {
     if (!activeSession || !settings) return
-    // Drop sets never filled in (weight and reps both 0) and exercises left empty.
     const cleaned: WorkoutSession = {
       ...activeSession,
+      endedAt: new Date().toISOString(),
       exercises: activeSession.exercises
         .map((e) => ({ ...e, sets: e.sets.filter((s) => s.weight > 0 || s.reps > 0) }))
         .filter((e) => e.sets.length > 0),
@@ -81,12 +90,12 @@ export function useAppData() {
       await saveSession(cleaned)
       setSessions(await getAllSessions())
     }
-    const next = advanceRotation(settings)
+    const next = advanceRotation(settings, customPlans)
     setSettings(next)
     await saveSettings(next)
     setActiveSession(null)
     await saveInProgressSession(null)
-  }, [activeSession, settings])
+  }, [activeSession, settings, customPlans])
 
   const cancelWorkout = useCallback(async () => {
     setActiveSession(null)
@@ -97,8 +106,10 @@ export function useAppData() {
     loaded,
     settings,
     sessions,
+    customPlans,
     activeSession,
     updateSettings,
+    updateCustomPlans,
     startWorkout,
     updateActiveSession,
     finishWorkout,

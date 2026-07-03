@@ -1,10 +1,11 @@
 import './BottomNav.css'
 
-export type TabId = 'today' | 'log' | 'library' | 'progress' | 'recovery'
+export type TabId = 'today' | 'log' | 'plan' | 'library' | 'progress' | 'recovery'
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'today', label: 'Today' },
   { id: 'log', label: 'Log' },
+  { id: 'plan', label: 'Plan' },
   { id: 'library', label: 'Library' },
   { id: 'progress', label: 'Progress' },
   { id: 'recovery', label: 'Recovery' },

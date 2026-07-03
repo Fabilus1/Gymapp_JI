@@ -1,28 +1,62 @@
-.md {
+.mm {
   display: flex;
-  gap: 18px;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
 }
 
-.md__view {
-  height: 210px;
+.mm__toggle {
+  display: flex;
+  background: var(--bg-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.mm__tab {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 6px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.mm__tab--on {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+
+.mm__svg {
+  height: 260px;
   width: auto;
 }
 
-.md__body {
-  fill: #17171b;
+.mm__body {
+  fill: #141417;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 1;
 }
 
-.md__m {
-  fill: #232329;
+.mm__m {
+  fill: #232327;
   transition: fill 0.2s ease;
 }
 
-.md__m--primary {
-  fill: var(--accent);
+.mm__cut {
+  fill: none;
+  stroke: #141417;
+  stroke-width: 1.5;
+  pointer-events: none;
 }
 
-.md__m--secondary {
+.mm__m--primary {
   fill: var(--accent);
-  opacity: 0.32;
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+.mm__m--secondary {
+  fill: var(--accent);
+  opacity: 0.28;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import LineChart from '../components/LineChart'
 import ExercisePicker from '../components/ExercisePicker'
+import WorkoutCalendar from '../components/WorkoutCalendar'
 import { addBodyWeightEntry, getAllBodyWeightEntries, newId } from '../db/db'
 import { getExerciseById, EXERCISES } from '../data/exercises'
 import { strengthTrend } from '../logic/progression'
@@ -77,6 +78,11 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
 
   return (
     <div className="progress">
+      <section className="progress__section">
+        <h2 className="eyebrow">History</h2>
+        <WorkoutCalendar sessions={sessions} />
+      </section>
+
       <section className="progress__section">
         <div className="progress__head">
           <h2 className="eyebrow">Body weight</h2>

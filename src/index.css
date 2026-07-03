@@ -1,17 +1,24 @@
 :root {
-  --bg: #0a0a0c;
-  --bg-raised: #111114;
-  --text: #f2f2f0;
-  --text-secondary: #9a9aa2;
-  --text-tertiary: #5c5c64;
-  --accent: #cdfa50;
-  --accent-dim: rgba(205, 250, 80, 0.14);
-  --on-accent: #0c0e04;
-  --hairline: #222226;
-  --danger: #f26d5f;
+  /* zinc-scale surfaces — no pure black, cards separate via hairlines */
+  --bg: #09090b;
+  --bg-raised: #131316;
+  --bg-card: #18181b;
+  --text: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #64646c;
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.16);
+
+  /* emerald accent + glow */
+  --accent: #34d399;
+  --accent-dim: rgba(52, 211, 153, 0.12);
+  --accent-glow: rgba(52, 211, 153, 0.5);
+  --on-accent: #052e1f;
+  --danger: #f87171;
 
   color-scheme: dark;
-  font-family: 'Space Grotesk Variable', -apple-system, system-ui, sans-serif;
+  font-family: 'Inter Variable', -apple-system, system-ui, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Inter Variable', system-ui, sans-serif;
 }
 
 * {
@@ -31,7 +38,6 @@ body {
 body {
   font-size: 16px;
   line-height: 1.45;
-  font-feature-settings: 'ss01';
 }
 
 #root {
@@ -57,7 +63,8 @@ button {
   padding: 0;
 }
 
-input {
+input,
+select {
   font-family: inherit;
 }
 
@@ -76,7 +83,40 @@ a {
 }
 
 .display-num {
+  font-family: var(--font-display);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   letter-spacing: -0.03em;
+}
+
+/* Minimalist input: transparent, underline only, accent on focus */
+.field {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--hairline-strong);
+  border-radius: 0;
+  color: var(--text);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  padding: 8px 2px;
+  width: 100%;
+  transition: border-color 0.15s ease;
+}
+
+.field::placeholder {
+  color: var(--text-tertiary);
+}
+
+.field:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+/* Glassmorphism card */
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }

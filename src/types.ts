@@ -41,7 +41,8 @@ export interface SessionExercise {
 
 export interface WorkoutSession {
   id: string
-  date: string // ISO 8601
+  date: string // ISO 8601 — when the workout started
+  endedAt?: string // ISO 8601 — set when Finish is tapped
   dayName: string
   exercises: SessionExercise[]
 }
@@ -64,9 +65,23 @@ export interface RecoveryEntry {
 export type SplitId = 'full-body' | 'upper-lower' | 'push-pull-legs'
 
 export interface Settings {
-  split: SplitId
+  /** id of a built-in split or a custom plan */
+  split: string
   units: 'lb' | 'kg'
   rotationIndex: number
+  /**
+   * Optional weekday schedule for the active split: index 0 = Monday … 6 = Sunday,
+   * value = day index within the split, or null for a rest day.
+   * When present (any non-null), Today follows the calendar instead of the rotation.
+   */
+  weekSchedule?: (number | null)[]
+}
+
+/** User-created program from the Planner (e.g. "Full Body" with Day 1/2/3). */
+export interface CustomPlan {
+  id: string
+  name: string
+  days: SplitDay[]
 }
 
 /** A day within a split template, e.g. "Full Body A" */

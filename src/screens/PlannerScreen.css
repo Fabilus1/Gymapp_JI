@@ -1,0 +1,206 @@
+.planner {
+  padding: 24px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.planner__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.planner__programs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.planner__custom-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.planner__custom-row .planner__program {
+  flex: 1;
+}
+
+.planner__program {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  text-align: left;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--hairline);
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.planner__program--active {
+  color: var(--accent);
+}
+
+.planner__program-meta {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.planner__icon-btn {
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.planner__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.planner__add--day {
+  align-self: flex-start;
+}
+
+.planner__name {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.planner__day {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.planner__day-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.planner__day-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.planner__exercises {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.planner__exercise {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 14px;
+}
+
+.planner__grip {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.planner__exercise-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planner__editor-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.planner__save {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--on-accent);
+  background: var(--accent);
+  border-radius: 12px;
+  padding: 15px;
+  cursor: pointer;
+}
+
+.planner__cancel {
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+}
+
+.planner__schedule-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.planner__clear {
+  font-size: 12.5px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.planner__hint {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.planner__week {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.planner__weekday {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.planner__weekday--today .planner__weekday-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.planner__weekday-label {
+  font-size: 14px;
+}
+
+.planner__select {
+  background: var(--bg-raised);
+  color: var(--text);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  font-size: 13.5px;
+  padding: 7px 10px;
+  min-width: 130px;
+}

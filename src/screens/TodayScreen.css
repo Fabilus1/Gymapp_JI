@@ -6,11 +6,19 @@
 }
 
 .today__day {
+  font-family: var(--font-display);
   font-size: 34px;
   font-weight: 700;
   letter-spacing: -0.03em;
   margin-top: 6px;
   line-height: 1.05;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.today__moon {
+  color: var(--text-tertiary);
 }
 
 .today__coach {

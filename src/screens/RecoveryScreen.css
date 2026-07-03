@@ -42,8 +42,29 @@
   color: var(--text-secondary);
 }
 
+.recovery__meter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.recovery__soreness-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.recovery__mini-label {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .recovery__status {
-  font-size: 13px;
+  font-size: 11.5px;
   color: var(--text-secondary);
   white-space: nowrap;
 }

@@ -1,11 +1,22 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Clock } from 'lucide-react'
 import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
 import ExercisePicker from '../components/ExercisePicker'
+import Sparkline from '../components/Sparkline'
 import { getExerciseById } from '../data/exercises'
 import { coachInsight } from '../logic/coach'
+import { strengthTrend } from '../logic/progression'
 import type { WorkoutSession } from '../types'
 import './LogScreen.css'
+
+function elapsedLabel(startIso: string): string {
+  const secs = Math.max(0, Math.floor((Date.now() - new Date(startIso).getTime()) / 1000))
+  const m = Math.floor(secs / 60)
+  const s = secs % 60
+  if (m >= 60) return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  return `${m}:${String(s).padStart(2, '0')}`
+}
 
 export default function LogScreen({
   session,
@@ -23,6 +34,14 @@ export default function LogScreen({
   onGoToday: () => void
 }) {
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [, setTick] = useState(0)
+
+  // Re-render every second while a session is live so the elapsed clock ticks.
+  useEffect(() => {
+    if (!session) return
+    const id = window.setInterval(() => setTick((t) => t + 1), 1000)
+    return () => window.clearInterval(id)
+  }, [session?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!session) {
     return (
@@ -99,7 +118,12 @@ export default function LogScreen({
   return (
     <div className="log">
       <div className="log__header">
-        <h2 className="log__day">{session.dayName}</h2>
+        <div>
+          <h2 className="log__day">{session.dayName}</h2>
+          <span className="log__elapsed">
+            <Clock size={13} /> {elapsedLabel(session.date)}
+          </span>
+        </div>
         <button className="log__discard" onClick={handleCancel}>
           Discard
         </button>
@@ -108,10 +132,13 @@ export default function LogScreen({
       {session.exercises.map((entry, exIndex) => {
         const exercise = getExerciseById(entry.exerciseId)
         const target = exercise ? coachInsight(exercise, sessions).target : null
+        const trend = strengthTrend(sessions, entry.exerciseId)
+          .slice(-8)
+          .map((p) => p.weight)
         return (
           <section key={`${entry.exerciseId}-${exIndex}`} className="log__exercise">
             <div className="log__exercise-head">
-              <div>
+              <div className="log__exercise-title">
                 <h3 className="log__exercise-name">{exercise?.name ?? entry.exerciseId}</h3>
                 {exercise && (
                   <p className="log__exercise-range">
@@ -119,9 +146,12 @@ export default function LogScreen({
                   </p>
                 )}
               </div>
-              <button className="log__remove-exercise" onClick={() => removeExercise(exIndex)}>
-                Remove
-              </button>
+              <div className="log__exercise-side">
+                <Sparkline values={trend} />
+                <button className="log__remove-exercise" onClick={() => removeExercise(exIndex)}>
+                  Remove
+                </button>
+              </div>
             </div>
 
             <div className="log__sets">

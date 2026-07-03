@@ -1,22 +1,10 @@
 import { useRef, useState } from 'react'
-import { SPLITS } from '../data/splits'
 import { exportAllData, importAllData } from '../db/db'
-import type { Settings, SplitId } from '../types'
 import './SettingsScreen.css'
 
-export default function SettingsScreen({
-  settings,
-  onSettingsChange,
-}: {
-  settings: Settings
-  onSettingsChange: (settings: Settings) => void
-}) {
+export default function SettingsScreen() {
   const [status, setStatus] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  function handleSplitChange(split: SplitId) {
-    onSettingsChange({ ...settings, split, rotationIndex: 0 })
-  }
 
   async function handleExport() {
     const json = await exportAllData()
@@ -49,22 +37,10 @@ export default function SettingsScreen({
   return (
     <div className="settings">
       <section className="settings__section">
-        <h2 className="settings__heading">Split</h2>
-        <div className="settings__options">
-          {SPLITS.map((split) => (
-            <button
-              key={split.id}
-              className={
-                split.id === settings.split
-                  ? 'settings__option settings__option--active'
-                  : 'settings__option'
-              }
-              onClick={() => handleSplitChange(split.id)}
-            >
-              {split.name}
-            </button>
-          ))}
-        </div>
+        <h2 className="settings__heading">Program</h2>
+        <p className="settings__description">
+          Programs and weekly scheduling moved to the Plan tab.
+        </p>
       </section>
 
       <section className="settings__section">

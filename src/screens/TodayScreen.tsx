@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react'
+import { Moon } from 'lucide-react'
 import Button from '../components/Button'
 import { getExerciseById } from '../data/exercises'
-import { getCurrentSplitDay } from '../logic/rotation'
+import { getTodayPlan } from '../logic/rotation'
 import { suggestNext } from '../logic/progression'
 import { coachInsight, sessionSummary } from '../logic/coach'
 import { getAllBodyWeightEntries } from '../db/db'
-import type { Settings, WorkoutSession } from '../types'
+import type { CustomPlan, Settings, WorkoutSession } from '../types'
 import './TodayScreen.css'
 
 const WEEK_MS = 7 * 86400000
 
 export default function TodayScreen({
   settings,
+  customPlans,
   sessions,
   hasActiveSession,
   onStartWorkout,
@@ -19,23 +21,27 @@ export default function TodayScreen({
   onGoProgress,
 }: {
   settings: Settings
+  customPlans: CustomPlan[]
   sessions: WorkoutSession[]
   hasActiveSession: boolean
   onStartWorkout: () => void
   onResumeWorkout: () => void
   onGoProgress: () => void
 }) {
-  const day = getCurrentSplitDay(settings)
+  const plan = getTodayPlan(settings, customPlans)
   const [weightDue, setWeightDue] = useState(false)
 
   useEffect(() => {
     getAllBodyWeightEntries().then((entries) => {
-      const latest = entries[0] // most recent first
+      const latest = entries[0]
       setWeightDue(!latest || Date.now() - new Date(latest.date).getTime() > WEEK_MS)
     })
   }, [])
 
-  const exercises = day.exerciseIds
+  const day = plan.day ?? plan.nextDay
+  const isRest = plan.followsSchedule && plan.day === null
+
+  const exercises = (day?.exerciseIds ?? [])
     .map((id) => getExerciseById(id))
     .filter((e): e is NonNullable<typeof e> => e !== undefined)
   const summary = sessionSummary(exercises, sessions)
@@ -43,9 +49,20 @@ export default function TodayScreen({
   return (
     <div className="today">
       <div className="today__intro">
-        <p className="eyebrow">Next workout</p>
-        <h2 className="today__day">{day.name}</h2>
-        {summary && <p className="today__coach">{summary}</p>}
+        <p className="eyebrow">{isRest ? 'Scheduled today' : 'Next workout'}</p>
+        {isRest ? (
+          <>
+            <h2 className="today__day">
+              Rest day <Moon size={22} className="today__moon" />
+            </h2>
+            {day && <p className="today__coach">Next up: {day.name}. Preview below.</p>}
+          </>
+        ) : (
+          <>
+            <h2 className="today__day">{day?.name ?? '—'}</h2>
+            {summary && <p className="today__coach">{summary}</p>}
+          </>
+        )}
       </div>
 
       {weightDue && (
@@ -89,6 +106,10 @@ export default function TodayScreen({
       <div className="today__action">
         {hasActiveSession ? (
           <Button onClick={onResumeWorkout}>Resume Workout</Button>
+        ) : isRest ? (
+          <Button variant="secondary" onClick={onStartWorkout}>
+            Train anyway — start {day?.name}
+          </Button>
         ) : (
           <Button onClick={onStartWorkout}>Start Workout</Button>
         )}

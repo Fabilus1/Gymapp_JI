@@ -4,6 +4,7 @@ import BottomNav, { type TabId } from './components/BottomNav'
 import RestTimer from './components/RestTimer'
 import TodayScreen from './screens/TodayScreen'
 import LogScreen from './screens/LogScreen'
+import PlannerScreen from './screens/PlannerScreen'
 import LibraryScreen from './screens/LibraryScreen'
 import ProgressScreen from './screens/ProgressScreen'
 import RecoveryScreen from './screens/RecoveryScreen'
@@ -15,6 +16,7 @@ import './App.css'
 const TAB_TITLES: Record<TabId, string> = {
   today: 'Today',
   log: 'Log',
+  plan: 'Planner',
   library: 'Library',
   progress: 'Progress',
   recovery: 'Recovery',
@@ -52,12 +54,13 @@ export default function App() {
       />
       <main className="screen" key={settingsOpen ? 'settings' : tab}>
         {settingsOpen ? (
-          <SettingsScreen settings={data.settings} onSettingsChange={data.updateSettings} />
+          <SettingsScreen />
         ) : (
           <>
             {tab === 'today' && (
               <TodayScreen
                 settings={data.settings}
+                customPlans={data.customPlans}
                 sessions={data.sessions}
                 hasActiveSession={data.activeSession !== null}
                 onStartWorkout={() => {
@@ -84,6 +87,14 @@ export default function App() {
                   setTab('today')
                 }}
                 onGoToday={() => setTab('today')}
+              />
+            )}
+            {tab === 'plan' && (
+              <PlannerScreen
+                settings={data.settings}
+                customPlans={data.customPlans}
+                onSettingsChange={data.updateSettings}
+                onPlansChange={data.updateCustomPlans}
               />
             )}
             {tab === 'library' && <LibraryScreen sessions={data.sessions} />}

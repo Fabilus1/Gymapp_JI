@@ -1,0 +1,19 @@
+.segbar {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.segbar__seg {
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.segbar--accent .segbar__seg--on {
+  background: var(--accent);
+}
+
+.segbar--danger .segbar__seg--on {
+  background: var(--danger);
+}
