@@ -1,0 +1,20 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top) + 14px) 20px 14px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.header__title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.header__settings,
+.header__back {
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+}

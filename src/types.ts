@@ -1,0 +1,82 @@
+export type MuscleGroup =
+  | 'chest'
+  | 'back'
+  | 'shoulders'
+  | 'traps'
+  | 'quads'
+  | 'hamstrings'
+  | 'glutes'
+  | 'calves'
+  | 'biceps'
+  | 'triceps'
+  | 'core'
+  | 'forearms'
+
+export type EquipmentType = 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight'
+
+export type ExerciseCategory = 'compound' | 'isolation'
+
+export interface Exercise {
+  id: string
+  name: string
+  muscle: MuscleGroup
+  type: ExerciseCategory
+  equipment: EquipmentType
+  /** [low, high] target reps for hypertrophy */
+  repRange: [number, number]
+  /** weight to add (in lb) once every set hits the top of repRange */
+  increment: number
+  cue: string
+}
+
+export interface SetEntry {
+  weight: number
+  reps: number
+}
+
+export interface SessionExercise {
+  exerciseId: string
+  sets: SetEntry[]
+}
+
+export interface WorkoutSession {
+  id: string
+  date: string // ISO 8601
+  dayName: string
+  exercises: SessionExercise[]
+}
+
+export interface BodyWeightEntry {
+  id: string
+  date: string // ISO 8601
+  weight: number
+}
+
+export type Soreness = 1 | 2 | 3 | 4 | 5
+
+export interface RecoveryEntry {
+  id: string
+  date: string // ISO 8601
+  muscle: MuscleGroup
+  soreness: Soreness
+}
+
+export type SplitId = 'full-body' | 'upper-lower' | 'push-pull-legs'
+
+export interface Settings {
+  split: SplitId
+  units: 'lb' | 'kg'
+  rotationIndex: number
+}
+
+/** A day within a split template, e.g. "Full Body A" */
+export interface SplitDay {
+  name: string
+  exerciseIds: string[]
+}
+
+export interface Split {
+  id: SplitId
+  name: string
+  days: SplitDay[]
+}
