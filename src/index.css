@@ -13,8 +13,8 @@
   --accent: #34d399;
   --accent-dim: rgba(52, 211, 153, 0.12);
   --accent-glow: rgba(52, 211, 153, 0.5);
-  --on-accent: #052e1f;
-  --danger: #f87171;
+  --on-accent: #0f172a; /* dark slate on bright accent */
+  --danger: #f43f5e; /* rose — softer against the emerald accent */
 
   color-scheme: dark;
   font-family: 'Inter Variable', -apple-system, system-ui, sans-serif;
@@ -33,6 +33,7 @@ body {
   color: var(--text);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+  overflow-x: hidden;
 }
 
 body {

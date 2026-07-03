@@ -1,6 +1,7 @@
 .screen {
   flex: 1;
   overflow-y: auto;
+  overflow-x: clip;
   -webkit-overflow-scrolling: touch;
   animation: screen-in 0.18s ease-out;
 }

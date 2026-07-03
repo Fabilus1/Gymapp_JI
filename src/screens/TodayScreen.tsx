@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Moon } from 'lucide-react'
+import { Moon, Play, TrendingUp, Target, AlertTriangle } from 'lucide-react'
 import Button from '../components/Button'
 import { getExerciseById } from '../data/exercises'
+import { EXERCISE_IMAGES } from '../data/exerciseImages'
 import { getTodayPlan } from '../logic/rotation'
 import { suggestNext } from '../logic/progression'
 import { coachInsight, sessionSummary } from '../logic/coach'
@@ -46,23 +47,33 @@ export default function TodayScreen({
     .filter((e): e is NonNullable<typeof e> => e !== undefined)
   const summary = sessionSummary(exercises, sessions)
 
+  const heroImage = exercises.length > 0 ? EXERCISE_IMAGES[exercises[0].id] : undefined
+
   return (
     <div className="today">
-      <div className="today__intro">
-        <p className="eyebrow">{isRest ? 'Scheduled today' : 'Next workout'}</p>
-        {isRest ? (
+      <div className={heroImage ? 'today__intro today__intro--hero' : 'today__intro'}>
+        {heroImage && (
           <>
-            <h2 className="today__day">
-              Rest day <Moon size={22} className="today__moon" />
-            </h2>
-            {day && <p className="today__coach">Next up: {day.name}. Preview below.</p>}
-          </>
-        ) : (
-          <>
-            <h2 className="today__day">{day?.name ?? '—'}</h2>
-            {summary && <p className="today__coach">{summary}</p>}
+            <img className="today__hero-img" src={heroImage} alt="" draggable={false} />
+            <div className="today__hero-shade" />
           </>
         )}
+        <div className="today__intro-content">
+          <p className="eyebrow">{isRest ? 'Scheduled today' : 'Next workout'}</p>
+          {isRest ? (
+            <>
+              <h2 className="today__day">
+                Rest day <Moon size={22} className="today__moon" />
+              </h2>
+              {day && <p className="today__coach">Next up: {day.name}. Preview below.</p>}
+            </>
+          ) : (
+            <>
+              <h2 className="today__day">{day?.name ?? '—'}</h2>
+              {summary && <p className="today__coach">{summary}</p>}
+            </>
+          )}
+        </div>
       </div>
 
       {weightDue && (
@@ -97,7 +108,12 @@ export default function TodayScreen({
                   )}
                 </span>
               </div>
-              <p className={`today__hint today__hint--${insight.kind}`}>{insight.message}</p>
+              <p className={`today__hint today__hint--${insight.kind}`}>
+                {insight.kind === 'increase' && <TrendingUp size={13} />}
+                {insight.kind === 'push' && <Target size={13} />}
+                {insight.kind === 'stall' && <AlertTriangle size={13} />}
+                <span>{insight.message}</span>
+              </p>
             </li>
           )
         })}
@@ -105,13 +121,17 @@ export default function TodayScreen({
 
       <div className="today__action">
         {hasActiveSession ? (
-          <Button onClick={onResumeWorkout}>Resume Workout</Button>
+          <Button onClick={onResumeWorkout}>
+            <Play size={16} /> Resume Workout
+          </Button>
         ) : isRest ? (
           <Button variant="secondary" onClick={onStartWorkout}>
             Train anyway — start {day?.name}
           </Button>
         ) : (
-          <Button onClick={onStartWorkout}>Start Workout</Button>
+          <Button onClick={onStartWorkout}>
+            <Play size={16} /> Start Workout
+          </Button>
         )}
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, Trash2, GripVertical, Check } from 'lucide-react'
 import ExercisePicker from '../components/ExercisePicker'
+import Dropdown from '../components/Dropdown'
 import { SPLITS } from '../data/splits'
 import { getExerciseById } from '../data/exercises'
 import { newId } from '../db/db'
@@ -265,18 +266,14 @@ export default function PlannerScreen({
               className={i === mondayIndex() ? 'planner__weekday planner__weekday--today' : 'planner__weekday'}
             >
               <span className="planner__weekday-label">{label}</span>
-              <select
-                className="planner__select"
+              <Dropdown
                 value={schedule[i] === null ? 'rest' : String(schedule[i])}
-                onChange={(e) => setScheduleDay(i, e.target.value)}
-              >
-                <option value="rest">Rest</option>
-                {program.days.map((d, di) => (
-                  <option key={di} value={di}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setScheduleDay(i, v)}
+                options={[
+                  { value: 'rest', label: 'Rest' },
+                  ...program.days.map((d, di) => ({ value: String(di), label: d.name })),
+                ]}
+              />
             </li>
           ))}
         </ul>

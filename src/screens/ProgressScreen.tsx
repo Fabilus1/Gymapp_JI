@@ -105,14 +105,18 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
           </p>
         )}
 
-        <div className="progress__modes">
+        <div className="progress__modes" role="tablist">
           <button
+            role="tab"
+            aria-selected={mode === 'slider'}
             className={mode === 'slider' ? 'progress__mode progress__mode--on' : 'progress__mode'}
             onClick={() => setMode('slider')}
           >
             Slider
           </button>
           <button
+            role="tab"
+            aria-selected={mode === 'type'}
             className={mode === 'type' ? 'progress__mode progress__mode--on' : 'progress__mode'}
             onClick={() => setMode('type')}
           >
@@ -133,6 +137,7 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
               max={sliderMax}
               step={0.5}
               value={sliderCurrent}
+              style={{ '--fill': `${((sliderCurrent - sliderMin) / (sliderMax - sliderMin)) * 100}%` } as React.CSSProperties}
               onChange={(e) => setSliderValue(Number(e.target.value))}
             />
             <div className="progress__slider-range">
