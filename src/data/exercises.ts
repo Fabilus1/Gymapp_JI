@@ -212,6 +212,58 @@ export const EXERCISES: Exercise[] = [
   { id: 'plate-pinch', name: 'Plate Pinch', muscle: 'forearms', type: 'isolation', equipment: 'bodyweight', repRange: [12, 20], increment: 2.5, cue: 'Pinch smooth plates together fingertips-to-thumb — log hold seconds as reps.' },
   { id: 'dead-hang', name: 'Dead Hang', muscle: 'forearms', type: 'isolation', equipment: 'bodyweight', repRange: [12, 20], increment: 2.5, cue: 'Full grip on the bar, shoulders relaxed but not slack — log hold seconds as reps.' },
   { id: 'behind-back-cable-wrist-curl', name: 'Behind-the-Back Cable Wrist Curl', muscle: 'forearms', type: 'isolation', equipment: 'cable', repRange: [12, 20], increment: 2.5, cue: 'Bar behind you at arms length, curl the wrists up, constant tension through the range.' },
+
+  // --- Cable & machine expansion ---
+
+  // Chest
+  { id: 'cable-chest-press', name: 'Cable Chest Press', muscle: 'chest', type: 'compound', equipment: 'cable', repRange: [6, 10], increment: 5, cue: 'Handles at chest height, staggered stance, press forward and together — constant tension unlike a barbell.' },
+  { id: 'incline-machine-press', name: 'Incline Machine Press', muscle: 'chest', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Seat set so handles start at upper-chest height, press up and together without shrugging.' },
+  { id: 'high-to-low-cable-fly', name: 'High-to-Low Cable Fly', muscle: 'chest', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Pulleys at the top, sweep down and in toward the waist — biases the lower chest fibers.' },
+  { id: 'machine-fly', name: 'Machine Fly', muscle: 'chest', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Arms slightly bent on the handles, sweep together, pause and squeeze at the midline.' },
+  { id: 'seated-dip-machine', name: 'Seated Dip Machine', muscle: 'chest', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Push the handles down and slightly forward, lean in a touch to load the lower chest.' },
+
+  // Back
+  { id: 'assisted-pull-up-machine', name: 'Assisted Pull-Up Machine', muscle: 'back', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Kneel on the pad, same pulling mechanics as a pull-up — reduce assistance over time (lower counterweight = harder).' },
+  { id: 'machine-pullover', name: 'Machine Pullover', muscle: 'back', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Elbows or upper arms on the pads, sweep down in an arc using the lats, not the arms.' },
+  { id: 'cable-pullover', name: 'Cable Pullover (Rope)', muscle: 'back', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Hinge slightly facing a high pulley, arms long, pull the rope down to your hips in an arc.' },
+  { id: 'wide-grip-seated-row', name: 'Wide-Grip Seated Row', muscle: 'back', type: 'compound', equipment: 'cable', repRange: [6, 10], increment: 5, cue: 'Wide bar, pull high toward the sternum with elbows out — biases upper back and rear delts.' },
+  { id: 'smith-machine-row', name: 'Smith Machine Row', muscle: 'back', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Fixed bar path lets you focus on the squeeze — hinge, pull to the lower ribs, control down.' },
+  { id: 'cable-deadlift', name: 'Cable Pull-Through Deadlift', muscle: 'back', type: 'compound', equipment: 'cable', repRange: [8, 12], increment: 5, cue: 'Low pulley between the legs, hinge and stand tall — a friendly hinge pattern for high-rep work.' },
+
+  // Shoulders
+  { id: 'cable-front-raise', name: 'Cable Front Raise', muscle: 'shoulders', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Cable behind you at the bottom, raise straight ahead to eye level — constant tension on the front delt.' },
+  { id: 'machine-rear-delt-row', name: 'Machine Rear Delt Row (High Row)', muscle: 'shoulders', type: 'compound', equipment: 'machine', repRange: [8, 12], increment: 5, cue: 'Elbows high and wide, pull toward the ears — targets rear delts and upper back together.' },
+  { id: 'cable-shoulder-press', name: 'Cable Shoulder Press', muscle: 'shoulders', type: 'compound', equipment: 'cable', repRange: [6, 10], increment: 5, cue: 'Seated or standing between low pulleys, press up — tension stays on through lockout.' },
+  { id: 'lying-cable-lateral-raise', name: 'Lying Cable Lateral Raise', muscle: 'shoulders', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Side-lying on an incline bench, raise the cable across your body — brutal stretch on the side delt.' },
+
+  // Traps
+  { id: 'cable-upright-row', name: 'Cable Upright Row', muscle: 'traps', type: 'compound', equipment: 'cable', repRange: [8, 12], increment: 2.5, cue: 'Rope or wide bar from a low pulley, lead with the elbows to chest height.' },
+
+  // Legs
+  { id: 'cable-squat', name: 'Cable Goblet Squat', muscle: 'quads', type: 'compound', equipment: 'cable', repRange: [8, 12], increment: 5, cue: 'Hold a low-pulley handle at your chest, sit back against the tension — great for keeping upright.' },
+  { id: 'smith-machine-lunge', name: 'Smith Machine Split Squat', muscle: 'quads', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Fixed bar over the shoulders, one foot forward, drop straight down and drive through the front heel.' },
+  { id: 'machine-squat', name: 'V-Squat Machine', muscle: 'quads', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Shoulders under the pads, sit deep and drive up — arc path keeps the torso supported.' },
+  { id: 'cable-rdl', name: 'Cable RDL', muscle: 'hamstrings', type: 'compound', equipment: 'cable', repRange: [8, 12], increment: 5, cue: 'Low pulley in both hands, hinge with soft knees — tension peaks in the stretch where it matters.' },
+  { id: 'smith-machine-rdl', name: 'Smith Machine RDL', muscle: 'hamstrings', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Fixed path keeps the bar tight to the legs — hips back until the hamstrings load fully.' },
+  { id: 'standing-leg-curl-machine', name: 'Standing Single-Leg Curl', muscle: 'hamstrings', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'One leg at a time, curl the heel to the glute, keep hips pressed to the pad.' },
+  { id: 'cable-hip-abduction', name: 'Cable Hip Abduction', muscle: 'glutes', type: 'isolation', equipment: 'cable', repRange: [12, 15], increment: 2.5, cue: 'Cuff at the ankle, swing the leg out to the side under control — upper glute burner.' },
+  { id: 'smith-machine-hip-thrust', name: 'Smith Machine Hip Thrust', muscle: 'glutes', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 10, cue: 'Fixed bar over the hips makes setup fast — drive through heels, hard squeeze at the top.' },
+  { id: 'cable-standing-calf-raise', name: 'Cable Standing Calf Raise', muscle: 'calves', type: 'isolation', equipment: 'cable', repRange: [12, 20], increment: 2.5, cue: 'Low handle held at the hip or shoulder, rise onto the toes through a full range.' },
+
+  // Arms
+  { id: 'machine-bicep-curl', name: 'Machine Bicep Curl', muscle: 'biceps', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Arms locked on the pad, curl through the machine arc, squeeze at the top without lifting the elbows.' },
+  { id: 'high-cable-curl', name: 'High Cable Curl (Crucifix)', muscle: 'biceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Arms out to the sides at shoulder height, curl toward the ears — peak-contraction focused.' },
+  { id: 'single-arm-cable-curl', name: 'Single-Arm Cable Curl', muscle: 'biceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Low pulley in one hand, elbow pinned, strict curl — fix left/right imbalances.' },
+  { id: 'single-arm-cable-lateral', name: 'Single-Arm Cable Kickback', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Hinge forward, no attachment needed — grip the ball of the cable, extend straight back.' },
+  { id: 'cross-cable-tricep-extension', name: 'Cross-Cable Tricep Extension', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Two high pulleys crossed in front of you, extend both arms down and out simultaneously.' },
+  { id: 'smith-close-grip-bench', name: 'Smith Machine Close-Grip Bench', muscle: 'triceps', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Hands inside shoulder width on the fixed bar, elbows tucked, press through the triceps.' },
+
+  // Core & misc
+  { id: 'rotary-torso-machine', name: 'Rotary Torso Machine', muscle: 'core', type: 'isolation', equipment: 'machine', repRange: [12, 20], increment: 2.5, cue: 'Rotate through the trunk against the pad, slow and controlled both directions.' },
+  { id: 'cable-side-bend', name: 'Cable Side Bend', muscle: 'core', type: 'isolation', equipment: 'cable', repRange: [12, 20], increment: 2.5, cue: 'Handle at your side from a low pulley, bend directly sideways and return — obliques only, no lean forward.' },
+  { id: 'machine-back-extension', name: 'Machine Back Extension', muscle: 'back', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Pad at the upper back, extend the spine against resistance, avoid overarching at the top.' },
+  { id: 'cable-crunch-standing', name: 'Standing Cable Crunch', muscle: 'core', type: 'isolation', equipment: 'cable', repRange: [12, 20], increment: 2.5, cue: 'Rope at the top of your head facing away, crunch down flexing the spine — hips stay still.' },
+  { id: 'gripper-machine', name: 'Grip Machine', muscle: 'forearms', type: 'isolation', equipment: 'machine', repRange: [12, 20], increment: 2.5, cue: 'Squeeze the handles fully closed, pause, control the release.' },
 ]
 
 export function getExerciseById(id: string): Exercise | undefined {

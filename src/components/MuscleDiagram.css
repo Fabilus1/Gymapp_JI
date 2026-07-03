@@ -1,0 +1,28 @@
+.md {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+}
+
+.md__view {
+  height: 210px;
+  width: auto;
+}
+
+.md__body {
+  fill: #17171b;
+}
+
+.md__m {
+  fill: #232329;
+  transition: fill 0.2s ease;
+}
+
+.md__m--primary {
+  fill: var(--accent);
+}
+
+.md__m--secondary {
+  fill: var(--accent);
+  opacity: 0.32;
+}

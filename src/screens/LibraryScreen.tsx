@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { EXERCISES } from '../data/exercises'
+import { EXERCISE_IMAGES } from '../data/exerciseImages'
+import { getMuscleTarget } from '../data/muscleDetail'
 import { findLastPerformance } from '../logic/progression'
-import type { MuscleGroup, WorkoutSession } from '../types'
+import ExerciseDetail from '../components/ExerciseDetail'
+import type { Exercise, MuscleGroup, WorkoutSession } from '../types'
 import './LibraryScreen.css'
 
 const MUSCLES: MuscleGroup[] = [
@@ -22,14 +25,14 @@ const MUSCLES: MuscleGroup[] = [
 function daysAgoLabel(iso: string): string {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
   if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  return `${days}d ago`
+  if (days === 1) return 'Yday'
+  return `${days}d`
 }
 
 export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[] }) {
   const [muscle, setMuscle] = useState<MuscleGroup | null>(null)
   const [query, setQuery] = useState('')
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [selected, setSelected] = useState<Exercise | null>(null)
 
   const results = EXERCISES.filter(
     (e) =>
@@ -42,7 +45,7 @@ export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[]
       <input
         className="library__search"
         type="text"
-        placeholder="Search"
+        placeholder={`Search ${EXERCISES.length} exercises`}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
@@ -68,39 +71,36 @@ export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[]
       <ul className="library__list">
         {results.map((e) => {
           const last = findLastPerformance(sessions, e.id)
-          const expanded = expandedId === e.id
+          const image = EXERCISE_IMAGES[e.id]
+          const target = getMuscleTarget(e.id)
           return (
             <li key={e.id} className="library__item">
-              <button
-                className="library__row"
-                onClick={() => setExpandedId(expanded ? null : e.id)}
-              >
+              <button className="library__row" onClick={() => setSelected(e)}>
+                {image ? (
+                  <img className="library__thumb" src={image} alt="" loading="lazy" />
+                ) : (
+                  <span className="library__thumb library__thumb--empty" aria-hidden="true">
+                    {e.name.charAt(0)}
+                  </span>
+                )}
                 <div className="library__row-main">
                   <span className="library__name">{e.name}</span>
                   <span className="library__meta">
-                    {e.muscle} · {e.type} · {e.repRange[0]}–{e.repRange[1]} reps
+                    {target ? target.primary.join(', ') : e.muscle} · {e.repRange[0]}–{e.repRange[1]}{' '}
+                    reps
                   </span>
                 </div>
-                <span className="library__last">
-                  {last ? daysAgoLabel(last.session.date) : '—'}
-                </span>
+                <span className="library__last">{last ? daysAgoLabel(last.session.date) : ''}</span>
               </button>
-              {expanded && (
-                <div className="library__detail">
-                  <p className="library__cue">{e.cue}</p>
-                  {last && (
-                    <p className="library__history">
-                      Last: {Math.max(...last.sets.map((s) => s.weight))} lb ×{' '}
-                      {last.sets.map((s) => s.reps).join(', ')}
-                    </p>
-                  )}
-                </div>
-              )}
             </li>
           )
         })}
         {results.length === 0 && <li className="library__none">No matches</li>}
       </ul>
+
+      {selected && (
+        <ExerciseDetail exercise={selected} sessions={sessions} onClose={() => setSelected(null)} />
+      )}
     </div>
   )
 }

@@ -3,17 +3,20 @@ import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
 import ExercisePicker from '../components/ExercisePicker'
 import { getExerciseById } from '../data/exercises'
+import { coachInsight } from '../logic/coach'
 import type { WorkoutSession } from '../types'
 import './LogScreen.css'
 
 export default function LogScreen({
   session,
+  sessions,
   onChange,
   onFinish,
   onCancel,
   onGoToday,
 }: {
   session: WorkoutSession | null
+  sessions: WorkoutSession[]
   onChange: (session: WorkoutSession) => void
   onFinish: () => void
   onCancel: () => void
@@ -104,6 +107,7 @@ export default function LogScreen({
 
       {session.exercises.map((entry, exIndex) => {
         const exercise = getExerciseById(entry.exerciseId)
+        const target = exercise ? coachInsight(exercise, sessions).target : null
         return (
           <section key={`${entry.exerciseId}-${exIndex}`} className="log__exercise">
             <div className="log__exercise-head">
@@ -111,7 +115,7 @@ export default function LogScreen({
                 <h3 className="log__exercise-name">{exercise?.name ?? entry.exerciseId}</h3>
                 {exercise && (
                   <p className="log__exercise-range">
-                    Target {exercise.repRange[0]}–{exercise.repRange[1]} reps
+                    {target ?? `Target ${exercise.repRange[0]}–${exercise.repRange[1]} reps`}
                   </p>
                 )}
               </div>

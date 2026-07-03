@@ -3,8 +3,8 @@
 import { deflateSync } from 'node:zlib'
 import { writeFileSync, mkdirSync } from 'node:fs'
 
-const BG = [14, 14, 16, 255] // near-black background
-const ACCENT = [94, 106, 210, 255] // #5E6AD2 placeholder accent (finalized Day 4)
+const BG = [10, 10, 12, 255] // near-black background
+const ACCENT = [205, 250, 80, 255] // #CDFA50 volt accent
 
 function crc32(buf) {
   let c

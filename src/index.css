@@ -1,12 +1,17 @@
 :root {
-  --bg: #0e0e10;
-  --text: #ededed;
-  --text-secondary: #8a8a8e;
-  --accent: #5e6ad2;
-  --hairline: #232326;
+  --bg: #0a0a0c;
+  --bg-raised: #111114;
+  --text: #f2f2f0;
+  --text-secondary: #9a9aa2;
+  --text-tertiary: #5c5c64;
+  --accent: #cdfa50;
+  --accent-dim: rgba(205, 250, 80, 0.14);
+  --on-accent: #0c0e04;
+  --hairline: #222226;
+  --danger: #f26d5f;
 
   color-scheme: dark;
-  font-family: -apple-system, 'Inter', system-ui, sans-serif;
+  font-family: 'Space Grotesk Variable', -apple-system, system-ui, sans-serif;
 }
 
 * {
@@ -25,14 +30,16 @@ body {
 
 body {
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1.45;
+  font-feature-settings: 'ss01';
 }
 
 #root {
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 h1,
@@ -47,8 +54,29 @@ button {
   color: inherit;
   background: none;
   border: none;
+  padding: 0;
+}
+
+input {
+  font-family: inherit;
 }
 
 a {
   color: inherit;
+}
+
+/* Shared primitives */
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.display-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }

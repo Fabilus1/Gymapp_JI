@@ -2,21 +2,45 @@
   padding: 28px 20px 40px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.today__label {
-  font-size: 13px;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  gap: 22px;
 }
 
 .today__day {
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-top: 4px;
+  letter-spacing: -0.03em;
+  margin-top: 6px;
+  line-height: 1.05;
+}
+
+.today__coach {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+.today__checkin {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: left;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--bg-raised);
+}
+
+.today__checkin-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
 }
 
 .today__list {
@@ -27,9 +51,8 @@
 
 .today__row {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 4px;
   padding: 14px 0;
   border-bottom: 1px solid var(--hairline);
 }
@@ -38,33 +61,28 @@
   border-top: 1px solid var(--hairline);
 }
 
-.today__row-main {
+.today__row-top {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .today__exercise {
-  font-size: 15px;
-}
-
-.today__last {
-  font-size: 12px;
-  color: var(--text-secondary);
+  font-size: 15.5px;
+  font-weight: 500;
+  min-width: 0;
 }
 
 .today__target {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
   white-space: nowrap;
 }
 
 .today__weight {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 .today__weight--up {
@@ -75,6 +93,22 @@
   font-size: 13px;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
+}
+
+.today__hint {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+}
+
+.today__hint--increase,
+.today__hint--push {
+  color: var(--text-secondary);
+}
+
+.today__hint--stall {
+  color: var(--danger);
+  opacity: 0.85;
 }
 
 .today__action {

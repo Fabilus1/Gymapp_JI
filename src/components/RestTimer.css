@@ -1,0 +1,70 @@
+.rest {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px;
+  border-top: 1px solid var(--hairline);
+  background: var(--bg-raised);
+  min-height: 52px;
+}
+
+.rest__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.rest__count {
+  flex: 1;
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+
+.rest__skip {
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+}
+
+.rest__presets {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.rest__preset {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.rest__preset:active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rest--done {
+  justify-content: center;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.rest__go {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--on-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}

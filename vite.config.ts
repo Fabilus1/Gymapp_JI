@@ -13,8 +13,8 @@ export default defineConfig({
         name: 'IronLog',
         short_name: 'IronLog',
         description: 'Personal hypertrophy tracker',
-        theme_color: '#0e0e10',
-        background_color: '#0e0e10',
+        theme_color: '#0a0a0c',
+        background_color: '#0a0a0c',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
@@ -26,9 +26,21 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
-        // App shell + data both need to work fully offline.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff2}'],
         navigateFallback: '/index.html',
+        runtimeCaching: [
+          {
+            // Exercise photos from free-exercise-db — cache as they're viewed
+            // so previously seen exercises work offline.
+            urlPattern: /^https:\/\/raw\.githubusercontent\.com\/yuhonas\/free-exercise-db\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'exercise-images',
+              expiration: { maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
       devOptions: {
         enabled: true,
