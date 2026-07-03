@@ -32,11 +32,15 @@ export interface Exercise {
 export interface SetEntry {
   weight: number
   reps: number
+  /** Reps in Reserve — proximity to failure (0 = to failure). Optional. */
+  rir?: number
 }
 
 export interface SessionExercise {
   exerciseId: string
   sets: SetEntry[]
+  /** Free-text machine setup, e.g. "Seat 4, Pin 12" — recalled next session. */
+  settingsNote?: string
 }
 
 export interface WorkoutSession {

@@ -1,0 +1,25 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 90;
+}
+
+.splash__icon {
+  color: var(--accent);
+  filter: drop-shadow(0 0 14px var(--accent-glow));
+  display: flex;
+}
+
+.splash__word {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+}

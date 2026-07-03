@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import LineChart from '../components/LineChart'
 import ExercisePicker from '../components/ExercisePicker'
 import WorkoutCalendar from '../components/WorkoutCalendar'
+import { weeklyVolume } from '../logic/volume'
 import { addBodyWeightEntry, getAllBodyWeightEntries, newId } from '../db/db'
 import { getExerciseById, EXERCISES } from '../data/exercises'
 import { strengthTrend } from '../logic/progression'
@@ -76,11 +77,37 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
       ? weightPoints[weightPoints.length - 1].value - weightPoints[0].value
       : null
 
+  const volume = useMemo(() => weeklyVolume(sessions), [sessions])
+
   return (
     <div className="progress">
       <section className="progress__section">
         <h2 className="eyebrow">History</h2>
         <WorkoutCalendar sessions={sessions} />
+      </section>
+
+      <section className="progress__section">
+        <h2 className="eyebrow">Weekly volume</h2>
+        {volume.length > 0 ? (
+          <ul className="progress__volume">
+            {volume.map((v) => (
+              <li key={v.muscle} className="progress__volume-row">
+                <span className="progress__volume-muscle">{v.muscle}</span>
+                <div className="progress__volume-track">
+                  <div
+                    className="progress__volume-bar"
+                    style={{ width: `${Math.max(4, (v.tonnage / volume[0].tonnage) * 100)}%` }}
+                  />
+                </div>
+                <span className="progress__volume-num">
+                  {v.tonnage >= 1000 ? `${(v.tonnage / 1000).toFixed(1)}k` : v.tonnage} lb
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="progress__none">No sets logged in the last 7 days.</p>
+        )}
       </section>
 
       <section className="progress__section">

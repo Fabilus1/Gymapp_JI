@@ -264,6 +264,52 @@ export const EXERCISES: Exercise[] = [
   { id: 'machine-back-extension', name: 'Machine Back Extension', muscle: 'back', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Pad at the upper back, extend the spine against resistance, avoid overarching at the top.' },
   { id: 'cable-crunch-standing', name: 'Standing Cable Crunch', muscle: 'core', type: 'isolation', equipment: 'cable', repRange: [12, 20], increment: 2.5, cue: 'Rope at the top of your head facing away, crunch down flexing the spine — hips stay still.' },
   { id: 'gripper-machine', name: 'Grip Machine', muscle: 'forearms', type: 'isolation', equipment: 'machine', repRange: [12, 20], increment: 2.5, cue: 'Squeeze the handles fully closed, pause, control the release.' },
+
+  // --- V5 additions: lifter-specific variations ---
+
+  // Chest
+  { id: 'larsen-press', name: 'Larsen Press', muscle: 'chest', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Bench press with feet up off the floor — no leg drive, pure upper-body pressing strictness.' },
+  { id: 'spoto-press', name: 'Spoto Press', muscle: 'chest', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Pause the bar an inch above the chest each rep — kills momentum, builds control off the chest.' },
+  { id: 'converging-chest-press', name: 'Converging Chest Press', muscle: 'chest', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Handles arc inward as you press — matches the pec fiber line better than a straight press.' },
+  { id: 'decline-machine-press', name: 'Decline Machine Press', muscle: 'chest', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Press down-and-forward, elbows tracking about 45°, squeeze the lower chest at lockout.' },
+  { id: 'deficit-push-up', name: 'Deficit Push-Up', muscle: 'chest', type: 'compound', equipment: 'bodyweight', repRange: [8, 12], increment: 5, cue: 'Hands on plates or handles, chest sinks below hand level for an extra stretch at the bottom.' },
+
+  // Back
+  { id: 'kroc-row', name: 'Kroc Row', muscle: 'back', type: 'compound', equipment: 'dumbbell', repRange: [10, 15], increment: 5, cue: 'Heavy one-arm row with controlled body english, high reps — grip and lats to the limit.' },
+  { id: 'helms-row', name: 'Helms Row', muscle: 'back', type: 'compound', equipment: 'dumbbell', repRange: [8, 12], increment: 5, cue: 'Chest braced on an incline bench set upright, row dumbbells strict — zero momentum possible.' },
+  { id: 'close-grip-lat-pulldown', name: 'Close-Grip Lat Pulldown', muscle: 'back', type: 'compound', equipment: 'cable', repRange: [8, 12], increment: 5, cue: 'Narrow neutral handle, elbows tight in front, pull to the sternum with a big lat stretch up top.' },
+
+  // Shoulders
+  { id: 'powell-raise', name: 'Powell Raise', muscle: 'shoulders', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Side-lying on a bench, raise the dumbbell from in front of your hip up over your shoulder — rear delt under stretch.' },
+  { id: 'cable-external-rotation', name: 'Cable External Rotation', muscle: 'shoulders', type: 'isolation', equipment: 'cable', repRange: [12, 15], increment: 2.5, cue: 'Elbow pinned at your side, rotate the forearm outward against the cable — rotator cuff insurance.' },
+
+  // Traps
+  { id: 'snatch-grip-high-pull', name: 'Snatch-Grip High Pull', muscle: 'traps', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Wide grip, explosive pull to chest height driving the elbows up — traps do the finish.' },
+
+  // Quads
+  { id: 'paused-back-squat', name: 'Paused Back Squat', muscle: 'quads', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Full 2-count pause in the hole without relaxing, then drive up — no stretch reflex to help.' },
+  { id: 'pin-squat', name: 'Pin Squat', muscle: 'quads', type: 'compound', equipment: 'barbell', repRange: [5, 8], increment: 10, cue: 'Squat to pins set at your sticking point, dead-stop, then stand — teaches brutal position honesty.' },
+  { id: 'front-foot-elevated-split-squat', name: 'Front-Foot Elevated Split Squat', muscle: 'quads', type: 'compound', equipment: 'dumbbell', repRange: [8, 12], increment: 5, cue: 'Front foot on a small plate or wedge — deeper knee flexion, more quad stretch than flat split squats.' },
+  { id: 'walking-barbell-lunge', name: 'Walking Lunge (Barbell)', muscle: 'quads', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 10, cue: 'Bar on your back, long controlled steps, torso tall — heavier than dumbbells once grip would limit you.' },
+  { id: 'unilateral-leg-extension', name: 'Single-Leg Extension', muscle: 'quads', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'One leg at a time — evens out left/right strength and lets you focus on the squeeze.' },
+
+  // Glutes
+  { id: 'b-stance-hip-thrust', name: 'B-Stance Hip Thrust', muscle: 'glutes', type: 'compound', equipment: 'barbell', repRange: [8, 12], increment: 5, cue: 'One heel planted, other foot on its heel as a kickstand — ~80% of the load on one glute.' },
+  { id: 'reverse-hyperextension', name: 'Reverse Hyperextension', muscle: 'glutes', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Torso on the pad, swing the legs up behind you squeezing the glutes — spine stays unloaded.' },
+
+  // Calves
+  { id: 'hack-squat-calf-raise', name: 'Hack Squat Calf Raise', muscle: 'calves', type: 'isolation', equipment: 'machine', repRange: [12, 20], increment: 2.5, cue: 'Balls of the feet on the platform edge of a hack squat, full stretch and full squeeze.' },
+
+  // Biceps
+  { id: 'incline-cable-curl', name: 'Incline Cable Curl', muscle: 'biceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Incline bench between low pulleys — the stretch of incline curls plus constant cable tension.' },
+  { id: 'drag-curl', name: 'Drag Curl', muscle: 'biceps', type: 'isolation', equipment: 'barbell', repRange: [10, 15], increment: 2.5, cue: 'Drag the bar up your torso with elbows drifting back — no front delt, all biceps peak.' },
+  { id: 'waiter-curl', name: 'Waiter Curl', muscle: 'biceps', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Hold one dumbbell flat like a tray with both palms, curl keeping the plate face-up — constant peak tension.' },
+  { id: 'zottman-curl', name: 'Zottman Curl', muscle: 'biceps', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Curl palms-up, rotate to palms-down at the top, lower slow — biceps up, forearms down.' },
+
+  // Triceps
+  { id: 'tate-press', name: 'Tate Press', muscle: 'triceps', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Lying on a bench, dumbbells over your chest, drop the elbows out so the weights dive toward your chest, press back up.' },
+  { id: 'rolling-tricep-extension', name: 'Rolling Tricep Extension', muscle: 'triceps', type: 'isolation', equipment: 'dumbbell', repRange: [8, 12], increment: 2.5, cue: 'Lower like a skull crusher, let the elbows drift back overhead, then punch back up — lat-assisted, elbow-friendly.' },
+  { id: 'katana-extension', name: 'Katana Extension', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Facing away from a high pulley, arms overhead like drawing a sword — huge long-head stretch behind the head.' },
 ]
 
 export function getExerciseById(id: string): Exercise | undefined {

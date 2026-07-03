@@ -17,6 +17,18 @@ import { getExerciseById } from '../data/exercises'
 
 const DEFAULT_SET_COUNT = 3
 
+/** Machine setup text from the most recent session containing this exercise. */
+export function recallSettingsNote(
+  sessions: WorkoutSession[],
+  exerciseId: string
+): string | undefined {
+  for (const session of sessions) {
+    const entry = session.exercises.find((e) => e.exerciseId === exerciseId)
+    if (entry?.settingsNote) return entry.settingsNote
+  }
+  return undefined
+}
+
 export function useAppData() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [sessions, setSessions] = useState<WorkoutSession[]>([])
@@ -65,6 +77,7 @@ export function useAppData() {
         return {
           exerciseId,
           sets: Array.from({ length: DEFAULT_SET_COUNT }, () => ({ weight, reps })),
+          settingsNote: recallSettingsNote(sessions, exerciseId),
         }
       }),
     }

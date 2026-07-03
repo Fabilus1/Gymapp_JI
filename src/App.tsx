@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import Header from './components/Header'
+import Splash from './components/Splash'
 import BottomNav, { type TabId } from './components/BottomNav'
 import RestTimer from './components/RestTimer'
 import TodayScreen from './screens/TodayScreen'
@@ -28,17 +30,20 @@ export default function App() {
   const data = useAppData()
   const restTimer = useRestTimer()
 
-  // Fade out the HTML splash once data is ready.
+  // The static HTML splash is replaced by the animated React one on mount;
+  // the React splash stays up ≥1.5s, then fades into the app.
+  const [splashHolding, setSplashHolding] = useState(true)
   useEffect(() => {
-    if (!data.loaded) return
-    const splash = document.getElementById('splash')
-    if (!splash) return
-    splash.classList.add('splash--out')
-    const t = window.setTimeout(() => splash.remove(), 400)
+    document.getElementById('splash')?.remove()
+    const t = window.setTimeout(() => setSplashHolding(false), 1500)
     return () => window.clearTimeout(t)
-  }, [data.loaded])
+  }, [])
 
-  if (!data.loaded || !data.settings) return null
+  const showSplash = splashHolding || !data.loaded || !data.settings
+
+  if (!data.loaded || !data.settings) {
+    return <Splash />
+  }
 
   const showRestBar =
     restTimer.remaining !== null ||
@@ -110,6 +115,7 @@ export default function App() {
         />
       )}
       {!settingsOpen && <BottomNav active={tab} onChange={setTab} />}
+      <AnimatePresence>{showSplash && <Splash key="splash" />}</AnimatePresence>
     </>
   )
 }

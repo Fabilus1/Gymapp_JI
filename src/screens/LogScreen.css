@@ -119,9 +119,34 @@
 .log__set-labels,
 .log__set {
   display: grid;
-  grid-template-columns: 32px 1fr 1fr 44px;
-  gap: 10px;
+  grid-template-columns: 26px 1fr 1fr 48px 30px;
+  gap: 8px;
   align-items: center;
+}
+
+.log__input--rir {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.log__settings-note {
+  margin: 0 16px;
+  background: var(--bg-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 9px 12px;
+  transition: border-color 0.15s ease;
+}
+
+.log__settings-note::placeholder {
+  color: var(--text-tertiary);
+}
+
+.log__settings-note:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .log__set-labels {

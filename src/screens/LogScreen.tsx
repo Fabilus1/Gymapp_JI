@@ -8,6 +8,7 @@ import Sparkline from '../components/Sparkline'
 import { getExerciseById } from '../data/exercises'
 import { EXERCISE_IMAGES } from '../data/exerciseImages'
 import { coachInsight } from '../logic/coach'
+import { recallSettingsNote } from '../hooks/useAppData'
 import { strengthTrend } from '../logic/progression'
 import type { WorkoutSession } from '../types'
 import './LogScreen.css'
@@ -83,6 +84,30 @@ export default function LogScreen({
     onChange(next)
   }
 
+  function setRir(exIndex: number, setIndex: number, raw: string) {
+    if (!session) return
+    const next = structuredClone(session)
+    if (raw === '') {
+      delete next.exercises[exIndex].sets[setIndex].rir
+    } else {
+      const value = Number(raw)
+      if (Number.isNaN(value) || value < 0 || value > 9) return
+      next.exercises[exIndex].sets[setIndex].rir = value
+    }
+    onChange(next)
+  }
+
+  function setSettingsNote(exIndex: number, raw: string) {
+    if (!session) return
+    const next = structuredClone(session)
+    if (raw === '') {
+      delete next.exercises[exIndex].settingsNote
+    } else {
+      next.exercises[exIndex].settingsNote = raw
+    }
+    onChange(next)
+  }
+
   function addSet(exIndex: number) {
     if (!session) return
     const next = structuredClone(session)
@@ -111,7 +136,11 @@ export default function LogScreen({
     if (!session) return
     const next = structuredClone(session)
     if (!next.exercises.some((e) => e.exerciseId === exerciseId)) {
-      next.exercises.push({ exerciseId, sets: [{ weight: 0, reps: 0 }] })
+      next.exercises.push({
+        exerciseId,
+        sets: [{ weight: 0, reps: 0 }],
+        settingsNote: recallSettingsNote(sessions, exerciseId),
+      })
     }
     onChange(next)
     setPickerOpen(false)
@@ -199,11 +228,20 @@ export default function LogScreen({
                   )}
                 </div>
 
+                <input
+                  className="log__settings-note"
+                  type="text"
+                  value={entry.settingsNote ?? ''}
+                  placeholder="Machine setup — e.g. Seat 4, Pin 12"
+                  onChange={(e) => setSettingsNote(safeIndex, e.target.value)}
+                />
+
                 <div className="log__sets">
                   <div className="log__set-labels">
                     <span>Set</span>
                     <span>lb</span>
                     <span>Reps</span>
+                    <span title="Reps in Reserve — how many reps you had left">RIR</span>
                     <span />
                   </div>
                   {entry.sets.map((set, setIndex) => (
@@ -224,6 +262,14 @@ export default function LogScreen({
                         value={set.reps === 0 ? '' : String(set.reps)}
                         placeholder="0"
                         onChange={(e) => setValue(safeIndex, setIndex, 'reps', e.target.value)}
+                      />
+                      <input
+                        className="log__input log__input--rir"
+                        type="text"
+                        inputMode="numeric"
+                        value={set.rir === undefined ? '' : String(set.rir)}
+                        placeholder="–"
+                        onChange={(e) => setRir(safeIndex, setIndex, e.target.value)}
                       />
                       <button
                         className="log__remove-set"
