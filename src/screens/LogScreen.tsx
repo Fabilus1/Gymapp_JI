@@ -10,6 +10,7 @@ import {
   Layers,
   Link2,
   List,
+  Minus,
   Plus,
   Target,
   Weight,
@@ -20,11 +21,13 @@ import ExercisePicker from '../components/ExercisePicker'
 import ExerciseImage from '../components/ExerciseImage'
 import PRCelebration from '../components/PRCelebration'
 import PlateCalculator from '../components/PlateCalculator'
+import FinishModal from '../components/FinishModal'
 import Sparkline from '../components/Sparkline'
 import { getExerciseById } from '../data/exercises'
 import { coachInsight } from '../logic/coach'
 import { bestE1rm, e1rm, strengthTrend } from '../logic/progression'
 import { vibrate } from '../logic/haptics'
+import { displayWeightStr, fromDisplayWeight, type Units } from '../logic/units'
 import { recallSettingsNote } from '../hooks/useAppData'
 import { useElapsed } from '../hooks/useElapsed'
 import type { Exercise, SessionExercise, SetType, WorkoutSession } from '../types'
@@ -72,6 +75,7 @@ function usesBar(exercise: Exercise | undefined): boolean {
 export default function LogScreen({
   session,
   sessions,
+  units,
   onChange,
   onFinish,
   onCancel,
@@ -80,8 +84,9 @@ export default function LogScreen({
 }: {
   session: WorkoutSession | null
   sessions: WorkoutSession[]
+  units: Units
   onChange: (session: WorkoutSession) => void
-  onFinish: () => void
+  onFinish: (rpe?: number) => void
   onCancel: () => void
   onGoToday: () => void
   /** fired when a set is confirmed, so the parent can auto-start the rest timer */
@@ -89,6 +94,10 @@ export default function LogScreen({
 }) {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [legendOpen, setLegendOpen] = useState(false)
+  const [finishOpen, setFinishOpen] = useState(false)
+  // Raw text of the weight field being typed, so "37." survives re-render
+  // (the input stores lb but shows the display unit). Keyed "exIdx:setIdx".
+  const [weightDrafts, setWeightDrafts] = useState<Record<string, string>>({})
   const [viewMode, setViewMode] = useState<'focus' | 'overview'>('focus')
   const [[groupIdx, direction], setNav] = useState<[number, number]>([0, 0])
   const [pr, setPr] = useState<{ id: number; value: number; name: string } | null>(null)
@@ -148,8 +157,10 @@ export default function LogScreen({
   function setValue(exIndex: number, setIndex: number, field: 'weight' | 'reps', raw: string) {
     const value = raw === '' ? 0 : Number(raw)
     if (Number.isNaN(value) || value < 0) return
+    // Weights are typed in the display unit but stored in lb.
+    const stored = field === 'weight' ? fromDisplayWeight(value, units) : value
     mutate((d) => {
-      d.exercises[exIndex].sets[setIndex][field] = value
+      d.exercises[exIndex].sets[setIndex][field] = stored
     })
   }
 
@@ -257,14 +268,15 @@ export default function LogScreen({
     const logged = session?.exercises.some((e) => e.sets.some((s) => s.logged))
     if (!logged) {
       if (
-        !window.confirm(
+        window.confirm(
           'No sets confirmed with the ✓ button yet — nothing will be saved. Finish anyway? This advances your rotation.'
         )
       ) {
-        return
+        onFinish() // nothing to save, skip the RPE prompt
       }
+      return
     }
-    onFinish()
+    setFinishOpen(true) // ask for exhaustion/RPE before saving
   }
 
   function handleCancel() {
@@ -336,7 +348,7 @@ export default function LogScreen({
         <div className="log__sets">
           <div className="log__set-labels">
             <span>Type</span>
-            <span>lb</span>
+            <span>{units}</span>
             <span>Reps</span>
             <span title="Reps in Reserve">RIR</span>
             <span>Log</span>
@@ -358,10 +370,25 @@ export default function LogScreen({
                   className="log__input"
                   type="text"
                   inputMode="decimal"
-                  value={set.weight === 0 ? '' : String(set.weight)}
+                  value={
+                    weightDrafts[`${exIndex}:${setIndex}`] ??
+                    (set.weight === 0 ? '' : displayWeightStr(set.weight, units))
+                  }
                   placeholder="0"
                   readOnly={locked}
-                  onChange={(e) => setValue(exIndex, setIndex, 'weight', e.target.value)}
+                  onChange={(e) => {
+                    const raw = e.target.value
+                    if (!/^\d*\.?\d*$/.test(raw)) return
+                    setWeightDrafts((d) => ({ ...d, [`${exIndex}:${setIndex}`]: raw }))
+                    setValue(exIndex, setIndex, 'weight', raw)
+                  }}
+                  onBlur={() =>
+                    setWeightDrafts((d) => {
+                      const next = { ...d }
+                      delete next[`${exIndex}:${setIndex}`]
+                      return next
+                    })
+                  }
                 />
                 <input
                   className="log__input"
@@ -478,15 +505,24 @@ export default function LogScreen({
             const done = e.sets.filter((s) => s.logged).length
             const complete = done === e.sets.length && e.sets.length > 0
             return (
-              <li key={`${e.exerciseId}-${i}`}>
-                <button className="log__overview-row" onClick={() => focusExercise(i)}>
-                  <div className="log__overview-main">
-                    <span className="log__overview-name">
-                      {ex?.name ?? e.exerciseId}
-                      {e.supersetNext && <Link2 size={12} className="log__overview-link" />}
-                    </span>
-                    <span className="log__overview-muscle">{ex?.muscle}</span>
-                  </div>
+              <li key={`${e.exerciseId}-${i}`} className="log__overview-row">
+                <button className="log__overview-main-btn" onClick={() => focusExercise(i)}>
+                  <span className="log__overview-name">
+                    {ex?.name ?? e.exerciseId}
+                    {e.supersetNext && <Link2 size={12} className="log__overview-link" />}
+                  </span>
+                  <span className="log__overview-muscle">{ex?.muscle}</span>
+                </button>
+                {/* edit target sets without leaving the overview */}
+                <div className="log__overview-stepper">
+                  <button
+                    className="log__ov-step"
+                    aria-label="Remove a set"
+                    disabled={e.sets.length <= 1}
+                    onClick={() => removeSet(i, e.sets.length - 1)}
+                  >
+                    <Minus size={13} />
+                  </button>
                   <span
                     className={
                       complete
@@ -494,10 +530,17 @@ export default function LogScreen({
                         : 'log__overview-progress'
                     }
                   >
-                    {complete && <Check size={13} />}
-                    {done}/{e.sets.length} sets
+                    {complete && <Check size={12} />}
+                    {done}/{e.sets.length}
                   </span>
-                </button>
+                  <button
+                    className="log__ov-step"
+                    aria-label="Add a set"
+                    onClick={() => addSet(i)}
+                  >
+                    <Plus size={13} />
+                  </button>
+                </div>
               </li>
             )
           })}
@@ -583,6 +626,16 @@ export default function LogScreen({
 
       {plateWeight !== null && (
         <PlateCalculator weight={plateWeight} onClose={() => setPlateWeight(null)} />
+      )}
+
+      {finishOpen && (
+        <FinishModal
+          onConfirm={(rpe) => {
+            setFinishOpen(false)
+            onFinish(rpe)
+          }}
+          onClose={() => setFinishOpen(false)}
+        />
       )}
 
       <AnimatePresence>

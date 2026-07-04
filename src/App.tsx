@@ -82,7 +82,7 @@ export default function App() {
       />
       <main className="screen" key={settingsOpen ? 'settings' : tab} onScroll={handleScroll}>
         {settingsOpen ? (
-          <SettingsScreen />
+          <SettingsScreen settings={data.settings} onSettingsChange={data.updateSettings} />
         ) : (
           <>
             {tab === 'today' && (
@@ -103,9 +103,10 @@ export default function App() {
               <LogScreen
                 session={data.activeSession}
                 sessions={data.sessions}
+                units={data.settings.units}
                 onChange={data.updateActiveSession}
-                onFinish={() => {
-                  data.finishWorkout()
+                onFinish={(rpe) => {
+                  data.finishWorkout(rpe)
                   restTimer.cancel()
                   setTab('today')
                 }}
@@ -129,7 +130,9 @@ export default function App() {
               />
             )}
             {tab === 'library' && <LibraryScreen sessions={data.sessions} />}
-            {tab === 'progress' && <ProgressScreen sessions={data.sessions} />}
+            {tab === 'progress' && (
+              <ProgressScreen sessions={data.sessions} units={data.settings.units} />
+            )}
             {tab === 'recovery' && <RecoveryScreen sessions={data.sessions} />}
           </>
         )}

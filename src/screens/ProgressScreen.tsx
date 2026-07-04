@@ -6,12 +6,19 @@ import { weeklyVolume } from '../logic/volume'
 import { addBodyWeightEntry, getAllBodyWeightEntries, newId } from '../db/db'
 import { getExerciseById, ALL_EXERCISES } from '../data/exercises'
 import { strengthTrend } from '../logic/progression'
+import { toDisplayWeight, fromDisplayWeight, type Units } from '../logic/units'
 import type { BodyWeightEntry, WorkoutSession } from '../types'
 import './ProgressScreen.css'
 
 const WEEK_MS = 7 * 86400000
 
-export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[] }) {
+export default function ProgressScreen({
+  sessions,
+  units,
+}: {
+  sessions: WorkoutSession[]
+  units: Units
+}) {
   const [entries, setEntries] = useState<BodyWeightEntry[]>([])
   const [mode, setMode] = useState<'slider' | 'type'>('slider')
   const [weightInput, setWeightInput] = useState('')
@@ -38,15 +45,20 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
   const loggedThisWeek =
     latest !== null && Date.now() - new Date(latest.date).getTime() <= WEEK_MS
 
-  // Slider centers on the last known weight (sane default range otherwise).
-  const sliderCenter = latest?.weight ?? 175
-  const sliderMin = Math.max(60, Math.round(sliderCenter - 25))
+  // Slider works in the display unit; the last weight is stored in lb.
+  const sliderCenter = toDisplayWeight(latest?.weight ?? (units === 'kg' ? 80 : 175), units)
+  const sliderMin = Math.max(units === 'kg' ? 30 : 60, Math.round(sliderCenter - 25))
   const sliderMax = Math.round(sliderCenter + 25)
   const sliderCurrent = sliderValue ?? sliderCenter
 
+  // `value` is in display units; convert to lb for storage.
   async function logWeight(value: number) {
     if (Number.isNaN(value) || value <= 0) return
-    const entry: BodyWeightEntry = { id: newId(), date: new Date().toISOString(), weight: value }
+    const entry: BodyWeightEntry = {
+      id: newId(),
+      date: new Date().toISOString(),
+      weight: fromDisplayWeight(value, units),
+    }
     await addBodyWeightEntry(entry)
     setEntries(await getAllBodyWeightEntries())
     setWeightInput('')
@@ -59,8 +71,8 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
     () =>
       [...entries]
         .sort((a, b) => a.date.localeCompare(b.date))
-        .map((e) => ({ date: e.date, value: e.weight })),
-    [entries]
+        .map((e) => ({ date: e.date, value: toDisplayWeight(e.weight, units) })),
+    [entries, units]
   )
 
   const exercise = exerciseId ? getExerciseById(exerciseId) : null
@@ -83,7 +95,7 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
     <div className="progress">
       <section className="progress__section">
         <h2 className="eyebrow">History</h2>
-        <WorkoutCalendar sessions={sessions} />
+        <WorkoutCalendar sessions={sessions} units={units} />
       </section>
 
       <section className="progress__section">
@@ -120,8 +132,8 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
 
         {latest && (
           <p className="progress__big-number">
-            {latest.weight}
-            <span className="progress__unit"> lb</span>
+            {toDisplayWeight(latest.weight, units)}
+            <span className="progress__unit"> {units}</span>
             {delta !== null && delta !== 0 && (
               <span className="progress__delta">
                 {' '}
@@ -155,7 +167,7 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
           <div className="progress__slider-block">
             <p className="progress__slider-value">
               {sliderCurrent}
-              <span className="progress__unit"> lb</span>
+              <span className="progress__unit"> {units}</span>
             </p>
             <input
               className="progress__slider"
@@ -172,7 +184,7 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
               <span>{sliderMax}</span>
             </div>
             <button className="progress__log" onClick={() => logWeight(sliderCurrent)}>
-              Log {sliderCurrent} lb
+              Log {sliderCurrent} {units}
             </button>
           </div>
         ) : (
@@ -181,7 +193,7 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
               className="progress__input"
               type="text"
               inputMode="decimal"
-              placeholder="Weight in lb"
+              placeholder={`Weight in ${units}`}
               value={weightInput}
               onChange={(e) => setWeightInput(e.target.value)}
             />

@@ -293,9 +293,19 @@
   gap: 12px;
   width: 100%;
   text-align: left;
-  padding: 13px 2px;
+  padding: 8px 2px;
   border-bottom: 1px solid var(--hairline);
+}
+
+.log__overview-main-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
   cursor: pointer;
+  padding: 5px 0;
 }
 
 .log__overview-main {
@@ -303,6 +313,40 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+}
+
+.log__overview-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.log__ov-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline-strong);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.log__ov-step:active {
+  transform: scale(0.9);
+}
+
+.log__ov-step:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.log__overview-progress {
+  min-width: 34px;
+  justify-content: center;
 }
 
 .log__overview-name {

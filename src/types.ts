@@ -58,6 +58,28 @@ export interface WorkoutSession {
   endedAt?: string // ISO 8601 — set when Finish is tapped
   dayName: string
   exercises: SessionExercise[]
+  /** Session exhaustion / RPE (1–10), captured in the finish modal. */
+  rpe?: number
+}
+
+export type BiologicalSex = 'male' | 'female' | 'other'
+
+/** Static-ish profile fields (weight lives in the bodyWeight log). */
+export interface Profile {
+  sex?: BiologicalSex
+  age?: number
+  /** height in inches — imperial BMI = 703 × lb / in² */
+  heightIn?: number
+}
+
+/** A dated set of body measurements (inches). All fields optional. */
+export interface BodyMetric {
+  id: string
+  date: string // ISO 8601
+  biceps?: number
+  chest?: number
+  waist?: number
+  thighs?: number
 }
 
 export interface BodyWeightEntry {

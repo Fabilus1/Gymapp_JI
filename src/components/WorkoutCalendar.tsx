@@ -1,6 +1,10 @@
 import { useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight, Clock } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, Flame } from 'lucide-react'
 import { getExerciseById } from '../data/exercises'
+import { sessionMuscles } from '../logic/sessionMuscles'
+import { formatWeight } from '../logic/units'
+import MuscleDiagram from './MuscleDiagram'
+import type { Units } from '../logic/units'
 import type { WorkoutSession } from '../types'
 import './WorkoutCalendar.css'
 
@@ -21,7 +25,13 @@ function durationLabel(session: WorkoutSession): string | null {
   return `${Math.floor(mins / 60)}h ${mins % 60}m`
 }
 
-export default function WorkoutCalendar({ sessions }: { sessions: WorkoutSession[] }) {
+export default function WorkoutCalendar({
+  sessions,
+  units,
+}: {
+  sessions: WorkoutSession[]
+  units: Units
+}) {
   const [cursor, setCursor] = useState(() => {
     const now = new Date()
     return new Date(now.getFullYear(), now.getMonth(), 1)
@@ -103,16 +113,32 @@ export default function WorkoutCalendar({ sessions }: { sessions: WorkoutSession
         <div className="wcal__detail card">
           {selectedSessions.map((s) => {
             const duration = durationLabel(s)
+            const muscles = sessionMuscles(s)
+            const hasMuscles = muscles.primary.length > 0 || muscles.secondary.length > 0
             return (
               <div key={s.id} className="wcal__session">
                 <div className="wcal__session-head">
                   <span className="wcal__session-name">{s.dayName}</span>
-                  {duration && (
-                    <span className="wcal__session-duration">
-                      <Clock size={12} /> {duration}
-                    </span>
-                  )}
+                  <span className="wcal__session-tags">
+                    {s.rpe && (
+                      <span className="wcal__session-rpe" title="Session RPE">
+                        <Flame size={12} /> RPE {s.rpe}
+                      </span>
+                    )}
+                    {duration && (
+                      <span className="wcal__session-duration">
+                        <Clock size={12} /> {duration}
+                      </span>
+                    )}
+                  </span>
                 </div>
+
+                {hasMuscles && (
+                  <div className="wcal__session-map">
+                    <MuscleDiagram primary={muscles.primary} secondary={muscles.secondary} />
+                  </div>
+                )}
+
                 <ul className="wcal__session-list">
                   {s.exercises.map((e, i) => (
                     <li key={`${e.exerciseId}-${i}`} className="wcal__session-ex">
@@ -120,7 +146,7 @@ export default function WorkoutCalendar({ sessions }: { sessions: WorkoutSession
                         {getExerciseById(e.exerciseId)?.name ?? e.exerciseId}
                       </span>
                       <span className="wcal__session-ex-sets">
-                        {Math.max(...e.sets.map((x) => x.weight))} lb ×{' '}
+                        {formatWeight(Math.max(...e.sets.map((x) => x.weight)), units)} ×{' '}
                         {e.sets.map((x) => x.reps).join(', ')}
                       </span>
                     </li>

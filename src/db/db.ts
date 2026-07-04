@@ -1,5 +1,13 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { WorkoutSession, BodyWeightEntry, RecoveryEntry, Settings, CustomPlan } from '../types'
+import type {
+  WorkoutSession,
+  BodyWeightEntry,
+  RecoveryEntry,
+  Settings,
+  CustomPlan,
+  Profile,
+  BodyMetric,
+} from '../types'
 
 interface IronLogDB extends DBSchema {
   sessions: { key: string; value: WorkoutSession; indexes: { 'by-date': string } }
@@ -66,6 +74,32 @@ export async function saveInProgressSession(session: WorkoutSession | null): Pro
   }
 }
 
+// ---- Profile + body measurements (kv-backed, no schema change) ----
+
+export async function getProfile(): Promise<Profile> {
+  const db = await getDb()
+  const stored = await db.get('kv', 'profile')
+  return (stored as Profile | undefined) ?? {}
+}
+
+export async function saveProfile(profile: Profile): Promise<void> {
+  const db = await getDb()
+  await db.put('kv', profile, 'profile')
+}
+
+export async function getBodyMetrics(): Promise<BodyMetric[]> {
+  const db = await getDb()
+  const stored = (await db.get('kv', 'bodyMetrics')) as BodyMetric[] | undefined
+  // newest first
+  return (stored ?? []).slice().sort((a, b) => b.date.localeCompare(a.date))
+}
+
+export async function addBodyMetric(entry: BodyMetric): Promise<void> {
+  const db = await getDb()
+  const existing = ((await db.get('kv', 'bodyMetrics')) as BodyMetric[] | undefined) ?? []
+  await db.put('kv', [...existing, entry], 'bodyMetrics')
+}
+
 // ---- Custom plans (Planner) ----
 
 export async function getCustomPlans(): Promise<CustomPlan[]> {
@@ -130,16 +164,21 @@ interface ExportPayload {
   bodyWeight: BodyWeightEntry[]
   recovery: RecoveryEntry[]
   customPlans?: CustomPlan[]
+  profile?: Profile
+  bodyMetrics?: BodyMetric[]
 }
 
 export async function exportAllData(): Promise<string> {
-  const [settings, sessions, bodyWeight, recovery, customPlans] = await Promise.all([
-    getSettings(),
-    getAllSessions(),
-    getAllBodyWeightEntries(),
-    getAllRecoveryEntries(),
-    getCustomPlans(),
-  ])
+  const [settings, sessions, bodyWeight, recovery, customPlans, profile, bodyMetrics] =
+    await Promise.all([
+      getSettings(),
+      getAllSessions(),
+      getAllBodyWeightEntries(),
+      getAllRecoveryEntries(),
+      getCustomPlans(),
+      getProfile(),
+      getBodyMetrics(),
+    ])
   const payload: ExportPayload = {
     exportVersion: EXPORT_VERSION,
     exportedAt: new Date().toISOString(),
@@ -148,6 +187,8 @@ export async function exportAllData(): Promise<string> {
     bodyWeight,
     recovery,
     customPlans,
+    profile,
+    bodyMetrics,
   }
   return JSON.stringify(payload, null, 2)
 }
@@ -181,6 +222,11 @@ export async function importAllData(json: string): Promise<void> {
     await tx.objectStore('kv').put(payload.settings, 'settings')
   }
   await tx.objectStore('kv').put(payload.customPlans ?? [], 'customPlans')
+  if (payload.profile) await tx.objectStore('kv').put(payload.profile, 'profile')
+  if (payload.bodyMetrics) await tx.objectStore('kv').put(payload.bodyMetrics, 'bodyMetrics')
+  // Clear any half-finished workout from before the import so it can't
+  // resurface pointing at the replaced data set.
+  await tx.objectStore('kv').delete('inProgressSession')
 
   await tx.done
 }

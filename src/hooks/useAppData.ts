@@ -9,8 +9,10 @@ import {
   saveInProgressSession,
   getCustomPlans,
   saveCustomPlans,
+  addRecoveryEntry,
   newId,
 } from '../db/db'
+import type { MuscleGroup, Soreness } from '../types'
 import { getTodayPlan, advanceRotation } from '../logic/rotation'
 import { suggestNext } from '../logic/progression'
 import { getExerciseById } from '../data/exercises'
@@ -93,26 +95,46 @@ export function useAppData() {
     await saveInProgressSession(session)
   }, [])
 
-  const finishWorkout = useCallback(async () => {
-    if (!activeSession || !settings) return
-    const cleaned: WorkoutSession = {
-      ...activeSession,
-      endedAt: new Date().toISOString(),
-      // Only explicitly logged sets count — unconfirmed rows are discarded.
-      exercises: activeSession.exercises
-        .map((e) => ({ ...e, sets: e.sets.filter((s) => s.logged === true) }))
-        .filter((e) => e.sets.length > 0),
-    }
-    if (cleaned.exercises.length > 0) {
-      await saveSession(cleaned)
-      setSessions(await getAllSessions())
-    }
-    const next = advanceRotation(settings, customPlans)
-    setSettings(next)
-    await saveSettings(next)
-    setActiveSession(null)
-    await saveInProgressSession(null)
-  }, [activeSession, settings, customPlans])
+  const finishWorkout = useCallback(
+    async (rpe?: number) => {
+      if (!activeSession || !settings) return
+      const cleaned: WorkoutSession = {
+        ...activeSession,
+        endedAt: new Date().toISOString(),
+        ...(rpe ? { rpe } : {}),
+        // Only explicitly logged sets count — unconfirmed rows are discarded.
+        exercises: activeSession.exercises
+          .map((e) => ({ ...e, sets: e.sets.filter((s) => s.logged === true) }))
+          .filter((e) => e.sets.length > 0),
+      }
+      if (cleaned.exercises.length > 0) {
+        await saveSession(cleaned)
+        // A brutal session seeds soreness so Recovery holds the worked
+        // muscles back a tier (matches the "high RPE extends rest" rule).
+        if (rpe && rpe >= 8) {
+          const soreness: Soreness = rpe >= 9 ? 4 : 3
+          const groups = new Set<MuscleGroup>()
+          for (const e of cleaned.exercises) {
+            const g = getExerciseById(e.exerciseId)?.muscle
+            if (g) groups.add(g)
+          }
+          const now = new Date().toISOString()
+          await Promise.all(
+            [...groups].map((muscle) =>
+              addRecoveryEntry({ id: newId(), date: now, muscle, soreness })
+            )
+          )
+        }
+        setSessions(await getAllSessions())
+      }
+      const next = advanceRotation(settings, customPlans)
+      setSettings(next)
+      await saveSettings(next)
+      setActiveSession(null)
+      await saveInProgressSession(null)
+    },
+    [activeSession, settings, customPlans]
+  )
 
   const cancelWorkout = useCallback(async () => {
     setActiveSession(null)
