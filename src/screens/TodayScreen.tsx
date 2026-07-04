@@ -7,28 +7,22 @@ import { getTodayPlan } from '../logic/rotation'
 import { suggestNext } from '../logic/progression'
 import { coachInsight, sessionSummary } from '../logic/coach'
 import { getAllBodyWeightEntries } from '../db/db'
-import type { CustomPlan, Settings, WorkoutSession } from '../types'
+import { useApp } from '../context/AppDataContext'
 import './TodayScreen.css'
 
 const WEEK_MS = 7 * 86400000
 
 export default function TodayScreen({
-  settings,
-  customPlans,
-  sessions,
-  hasActiveSession,
   onStartWorkout,
   onResumeWorkout,
   onGoProgress,
 }: {
-  settings: Settings
-  customPlans: CustomPlan[]
-  sessions: WorkoutSession[]
-  hasActiveSession: boolean
   onStartWorkout: () => void
   onResumeWorkout: () => void
   onGoProgress: () => void
 }) {
+  const { settings, customPlans, sessions, activeSession } = useApp()
+  const hasActiveSession = activeSession !== null
   const plan = getTodayPlan(settings, customPlans)
   const [weightDue, setWeightDue] = useState(false)
 

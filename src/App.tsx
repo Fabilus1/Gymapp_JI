@@ -15,6 +15,7 @@ import SettingsScreen from './screens/SettingsScreen'
 import { useAppData } from './hooks/useAppData'
 import { useRestTimer } from './hooks/useRestTimer'
 import { useWakeLock } from './hooks/useWakeLock'
+import { AppDataProvider, type AppDataValue } from './context/AppDataContext'
 import './App.css'
 
 // Default rest by movement mechanic (spec: 2.5 min compound / 60 s isolation).
@@ -69,13 +70,24 @@ export default function App() {
     return <Splash />
   }
 
+  const appDataValue: AppDataValue = {
+    settings: data.settings,
+    units: data.settings.units,
+    sessions: data.sessions,
+    customPlans: data.customPlans,
+    activeSession: data.activeSession,
+    updateSettings: data.updateSettings,
+    updateCustomPlans: data.updateCustomPlans,
+    updateActiveSession: data.updateActiveSession,
+  }
+
   const showRestBar =
     restTimer.remaining !== null ||
     restTimer.done ||
     (tab === 'log' && !settingsOpen && data.activeSession !== null)
 
   return (
-    <>
+    <AppDataProvider value={appDataValue}>
       <Header
         title={settingsOpen ? 'Settings' : TAB_TITLES[tab]}
         onSettingsClick={settingsOpen ? undefined : () => setSettingsOpen(true)}
@@ -83,15 +95,11 @@ export default function App() {
       />
       <main className="screen" key={settingsOpen ? 'settings' : tab} onScroll={handleScroll}>
         {settingsOpen ? (
-          <SettingsScreen settings={data.settings} onSettingsChange={data.updateSettings} />
+          <SettingsScreen />
         ) : (
           <>
             {tab === 'today' && (
               <TodayScreen
-                settings={data.settings}
-                customPlans={data.customPlans}
-                sessions={data.sessions}
-                hasActiveSession={data.activeSession !== null}
                 onStartWorkout={() => {
                   data.startWorkout()
                   setTab('log')
@@ -102,10 +110,6 @@ export default function App() {
             )}
             {tab === 'log' && (
               <LogScreen
-                session={data.activeSession}
-                sessions={data.sessions}
-                units={data.settings.units}
-                onChange={data.updateActiveSession}
                 onFinish={(rpe) => {
                   data.finishWorkout(rpe)
                   restTimer.cancel()
@@ -122,19 +126,10 @@ export default function App() {
                 }
               />
             )}
-            {tab === 'plan' && (
-              <PlannerScreen
-                settings={data.settings}
-                customPlans={data.customPlans}
-                onSettingsChange={data.updateSettings}
-                onPlansChange={data.updateCustomPlans}
-              />
-            )}
-            {tab === 'library' && <LibraryScreen sessions={data.sessions} />}
-            {tab === 'progress' && (
-              <ProgressScreen sessions={data.sessions} units={data.settings.units} />
-            )}
-            {tab === 'recovery' && <RecoveryScreen sessions={data.sessions} />}
+            {tab === 'plan' && <PlannerScreen />}
+            {tab === 'library' && <LibraryScreen />}
+            {tab === 'progress' && <ProgressScreen />}
+            {tab === 'recovery' && <RecoveryScreen />}
           </>
         )}
       </main>
@@ -147,6 +142,6 @@ export default function App() {
       {!settingsOpen && <BottomNav active={tab} onChange={setTab} hidden={navHidden} />}
       <Toast />
       <AnimatePresence>{showSplash && <Splash key="splash" />}</AnimatePresence>
-    </>
+    </AppDataProvider>
   )
 }

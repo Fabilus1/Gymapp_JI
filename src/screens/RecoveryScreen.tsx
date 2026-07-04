@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import SegmentBar from '../components/SegmentBar'
 import { addRecoveryEntry, getAllRecoveryEntries, newId } from '../db/db'
 import { muscleRecovery, STATUS_LABELS } from '../logic/recovery'
-import type { MuscleGroup, RecoveryEntry, Soreness, WorkoutSession } from '../types'
+import { useApp } from '../context/AppDataContext'
+import type { MuscleGroup, RecoveryEntry, Soreness } from '../types'
 import './RecoveryScreen.css'
 
 const MUSCLES: MuscleGroup[] = [
@@ -27,7 +28,8 @@ function daysSince(iso: string): string | null {
   return `Trained ${days} days ago`
 }
 
-export default function RecoveryScreen({ sessions }: { sessions: WorkoutSession[] }) {
+export default function RecoveryScreen() {
+  const { sessions } = useApp()
   const [log, setLog] = useState<RecoveryEntry[]>([])
   const [logging, setLogging] = useState<MuscleGroup | null>(null)
 

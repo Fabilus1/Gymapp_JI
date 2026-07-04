@@ -10,7 +10,8 @@ import {
   newId,
 } from '../db/db'
 import { toDisplayWeight } from '../logic/units'
-import type { BiologicalSex, BodyMetric, Profile, Settings } from '../types'
+import { useApp } from '../context/AppDataContext'
+import type { BiologicalSex, BodyMetric, Profile } from '../types'
 import './SettingsScreen.css'
 
 const SEXES: { value: BiologicalSex; label: string }[] = [
@@ -39,13 +40,8 @@ function numOrUndef(raw: string): number | undefined {
   return Number.isNaN(n) || n < 0 ? undefined : n
 }
 
-export default function SettingsScreen({
-  settings,
-  onSettingsChange,
-}: {
-  settings: Settings
-  onSettingsChange: (settings: Settings) => void
-}) {
+export default function SettingsScreen() {
+  const { settings, updateSettings } = useApp()
   const [status, setStatus] = useState<string | null>(null)
   const [profile, setProfile] = useState<Profile>({})
   const [latestWeightLb, setLatestWeightLb] = useState<number | null>(null)
@@ -222,7 +218,7 @@ export default function SettingsScreen({
               className={
                 settings.units === u ? 'settings__seg-btn settings__seg-btn--on' : 'settings__seg-btn'
               }
-              onClick={() => onSettingsChange({ ...settings, units: u })}
+              onClick={() => updateSettings({ ...settings, units: u })}
             >
               {u}
             </button>

@@ -1,5 +1,15 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import { notify } from '../logic/notify'
+import {
+  asSettings,
+  asProfile,
+  asBodyMetrics,
+  asCustomPlans,
+  asWorkoutSession,
+  asWorkoutSessions,
+  asBodyWeightEntries,
+  asRecoveryEntries,
+} from './validate'
 import type {
   WorkoutSession,
   BodyWeightEntry,
@@ -19,8 +29,6 @@ interface IronLogDB extends DBSchema {
 
 const DB_NAME = 'ironlog'
 const DB_VERSION = 1
-
-const DEFAULT_SETTINGS: Settings = { split: 'full-body', units: 'lb', rotationIndex: 0 }
 
 let dbPromise: Promise<IDBPDatabase<IronLogDB>> | null = null
 
@@ -68,8 +76,7 @@ async function guardedWrite<T>(op: () => Promise<T>, what: string): Promise<T> {
 
 export async function getSettings(): Promise<Settings> {
   const db = await getDb()
-  const stored = await db.get('kv', 'settings')
-  return stored ? { ...DEFAULT_SETTINGS, ...(stored as Settings) } : DEFAULT_SETTINGS
+  return asSettings(await db.get('kv', 'settings'))
 }
 
 export async function saveSettings(settings: Settings): Promise<void> {
@@ -81,8 +88,7 @@ export async function saveSettings(settings: Settings): Promise<void> {
 
 export async function getInProgressSession(): Promise<WorkoutSession | null> {
   const db = await getDb()
-  const stored = await db.get('kv', 'inProgressSession')
-  return (stored as WorkoutSession | undefined) ?? null
+  return asWorkoutSession(await db.get('kv', 'inProgressSession'))
 }
 
 export async function saveInProgressSession(session: WorkoutSession | null): Promise<void> {
@@ -98,34 +104,33 @@ export async function saveInProgressSession(session: WorkoutSession | null): Pro
 
 export async function getProfile(): Promise<Profile> {
   const db = await getDb()
-  const stored = await db.get('kv', 'profile')
-  return (stored as Profile | undefined) ?? {}
+  return asProfile(await db.get('kv', 'profile'))
 }
 
 export async function saveProfile(profile: Profile): Promise<void> {
   const db = await getDb()
-  await db.put('kv', profile, 'profile')
+  await guardedWrite(() => db.put('kv', profile, 'profile'), 'your profile')
 }
 
 export async function getBodyMetrics(): Promise<BodyMetric[]> {
   const db = await getDb()
-  const stored = (await db.get('kv', 'bodyMetrics')) as BodyMetric[] | undefined
   // newest first
-  return (stored ?? []).slice().sort((a, b) => b.date.localeCompare(a.date))
+  return asBodyMetrics(await db.get('kv', 'bodyMetrics')).sort((a, b) =>
+    b.date.localeCompare(a.date)
+  )
 }
 
 export async function addBodyMetric(entry: BodyMetric): Promise<void> {
   const db = await getDb()
-  const existing = ((await db.get('kv', 'bodyMetrics')) as BodyMetric[] | undefined) ?? []
-  await db.put('kv', [...existing, entry], 'bodyMetrics')
+  const existing = asBodyMetrics(await db.get('kv', 'bodyMetrics'))
+  await guardedWrite(() => db.put('kv', [...existing, entry], 'bodyMetrics'), 'your measurements')
 }
 
 // ---- Custom plans (Planner) ----
 
 export async function getCustomPlans(): Promise<CustomPlan[]> {
   const db = await getDb()
-  const stored = await db.get('kv', 'customPlans')
-  return (stored as CustomPlan[] | undefined) ?? []
+  return asCustomPlans(await db.get('kv', 'customPlans'))
 }
 
 export async function saveCustomPlans(plans: CustomPlan[]): Promise<void> {
@@ -220,30 +225,32 @@ export async function importAllData(json: string): Promise<void> {
     throw new Error('This file does not look like an IronLog backup.')
   }
 
+  // Sanitize every record from the (untrusted) backup before writing, so a
+  // hand-edited or corrupt file can't poison the store with malformed data.
+  const sessions = asWorkoutSessions(payload.sessions)
+  const bodyWeight = asBodyWeightEntries(payload.bodyWeight)
+  const recovery = asRecoveryEntries(payload.recovery)
+  const settings = asSettings(payload.settings)
+  const customPlans = asCustomPlans(payload.customPlans)
+  const profile = asProfile(payload.profile)
+  const bodyMetrics = asBodyMetrics(payload.bodyMetrics)
+
   const db = await getDb()
   const tx = db.transaction(['sessions', 'bodyWeight', 'recovery', 'kv'], 'readwrite')
 
   await tx.objectStore('sessions').clear()
-  for (const session of payload.sessions ?? []) {
-    await tx.objectStore('sessions').put(session)
-  }
+  for (const session of sessions) await tx.objectStore('sessions').put(session)
 
   await tx.objectStore('bodyWeight').clear()
-  for (const entry of payload.bodyWeight ?? []) {
-    await tx.objectStore('bodyWeight').put(entry)
-  }
+  for (const entry of bodyWeight) await tx.objectStore('bodyWeight').put(entry)
 
   await tx.objectStore('recovery').clear()
-  for (const entry of payload.recovery ?? []) {
-    await tx.objectStore('recovery').put(entry)
-  }
+  for (const entry of recovery) await tx.objectStore('recovery').put(entry)
 
-  if (payload.settings) {
-    await tx.objectStore('kv').put(payload.settings, 'settings')
-  }
-  await tx.objectStore('kv').put(payload.customPlans ?? [], 'customPlans')
-  if (payload.profile) await tx.objectStore('kv').put(payload.profile, 'profile')
-  if (payload.bodyMetrics) await tx.objectStore('kv').put(payload.bodyMetrics, 'bodyMetrics')
+  await tx.objectStore('kv').put(settings, 'settings')
+  await tx.objectStore('kv').put(customPlans, 'customPlans')
+  await tx.objectStore('kv').put(profile, 'profile')
+  await tx.objectStore('kv').put(bodyMetrics, 'bodyMetrics')
   // Clear any half-finished workout from before the import so it can't
   // resurface pointing at the replaced data set.
   await tx.objectStore('kv').delete('inProgressSession')

@@ -5,7 +5,8 @@ import { buildHistoryIndex, lastPerformanceFromIndex } from '../logic/history'
 import { searchExercises } from '../logic/search'
 import ExerciseDetail from '../components/ExerciseDetail'
 import ExerciseImage from '../components/ExerciseImage'
-import type { Exercise, MuscleGroup, WorkoutSession } from '../types'
+import { useApp } from '../context/AppDataContext'
+import type { Exercise, MuscleGroup } from '../types'
 import './LibraryScreen.css'
 
 const MUSCLES: MuscleGroup[] = [
@@ -30,7 +31,8 @@ function daysAgoLabel(iso: string): string {
   return `${days}d`
 }
 
-export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[] }) {
+export default function LibraryScreen() {
+  const { sessions } = useApp()
   const [muscle, setMuscle] = useState<MuscleGroup | null>(null)
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Exercise | null>(null)

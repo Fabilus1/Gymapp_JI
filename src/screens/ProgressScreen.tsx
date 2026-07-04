@@ -6,19 +6,15 @@ import { weeklyVolume } from '../logic/volume'
 import { addBodyWeightEntry, getAllBodyWeightEntries, newId } from '../db/db'
 import { getExerciseById, ALL_EXERCISES } from '../data/exercises'
 import { buildHistoryIndex, strengthTrendFromIndex } from '../logic/history'
-import { toDisplayWeight, fromDisplayWeight, type Units } from '../logic/units'
-import type { BodyWeightEntry, WorkoutSession } from '../types'
+import { toDisplayWeight, fromDisplayWeight } from '../logic/units'
+import { useApp } from '../context/AppDataContext'
+import type { BodyWeightEntry } from '../types'
 import './ProgressScreen.css'
 
 const WEEK_MS = 7 * 86400000
 
-export default function ProgressScreen({
-  sessions,
-  units,
-}: {
-  sessions: WorkoutSession[]
-  units: Units
-}) {
+export default function ProgressScreen() {
+  const { sessions, units } = useApp()
   const [entries, setEntries] = useState<BodyWeightEntry[]>([])
   const [mode, setMode] = useState<'slider' | 'type'>('slider')
   const [weightInput, setWeightInput] = useState('')

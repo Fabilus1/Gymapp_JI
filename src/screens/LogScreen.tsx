@@ -32,7 +32,8 @@ import {
   strengthTrendFromIndex,
 } from '../logic/history'
 import { vibrate } from '../logic/haptics'
-import { displayWeightStr, fromDisplayWeight, type Units } from '../logic/units'
+import { displayWeightStr, fromDisplayWeight } from '../logic/units'
+import { useApp } from '../context/AppDataContext'
 import { recallSettingsNote } from '../hooks/useAppData'
 import { useElapsed } from '../hooks/useElapsed'
 import type { Exercise, SessionExercise, SetType, WorkoutSession } from '../types'
@@ -78,25 +79,18 @@ function usesBar(exercise: Exercise | undefined): boolean {
 }
 
 export default function LogScreen({
-  session,
-  sessions,
-  units,
-  onChange,
   onFinish,
   onCancel,
   onGoToday,
   onSetLogged,
 }: {
-  session: WorkoutSession | null
-  sessions: WorkoutSession[]
-  units: Units
-  onChange: (session: WorkoutSession) => void
   onFinish: (rpe?: number) => void
   onCancel: () => void
   onGoToday: () => void
   /** fired when a set is confirmed, so the parent can auto-start the rest timer */
   onSetLogged: (isCompound: boolean) => void
 }) {
+  const { activeSession: session, sessions, units, updateActiveSession: onChange } = useApp()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [legendOpen, setLegendOpen] = useState(false)
   const [finishOpen, setFinishOpen] = useState(false)

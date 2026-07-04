@@ -8,22 +8,19 @@ import { SPLITS } from '../data/splits'
 import { getExerciseById } from '../data/exercises'
 import { newId } from '../db/db'
 import { resolveProgram, mondayIndex } from '../logic/rotation'
-import type { CustomPlan, ExerciseMeta, Settings, SplitDay } from '../types'
+import { useApp } from '../context/AppDataContext'
+import type { CustomPlan, ExerciseMeta, SplitDay } from '../types'
 import './PlannerScreen.css'
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-export default function PlannerScreen({
-  settings,
-  customPlans,
-  onSettingsChange,
-  onPlansChange,
-}: {
-  settings: Settings
-  customPlans: CustomPlan[]
-  onSettingsChange: (settings: Settings) => void
-  onPlansChange: (plans: CustomPlan[]) => void
-}) {
+export default function PlannerScreen() {
+  const {
+    settings,
+    customPlans,
+    updateSettings: onSettingsChange,
+    updateCustomPlans: onPlansChange,
+  } = useApp()
   const [editingPlan, setEditingPlan] = useState<CustomPlan | null>(null)
   const [pickerForDay, setPickerForDay] = useState<number | null>(null)
 
