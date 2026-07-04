@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ALL_EXERCISES } from '../data/exercises'
+import { searchExercises } from '../logic/search'
 import './ExercisePicker.css'
 
 export default function ExercisePicker({
@@ -13,10 +14,9 @@ export default function ExercisePicker({
 }) {
   const [query, setQuery] = useState('')
 
-  const results = ALL_EXERCISES.filter(
-    (e) =>
-      !excludeIds.includes(e.id) &&
-      (query === '' || e.name.toLowerCase().includes(query.toLowerCase()))
+  const results = searchExercises(
+    ALL_EXERCISES.filter((e) => !excludeIds.includes(e.id)),
+    query
   )
 
   return (

@@ -205,6 +205,43 @@ const ALIASES = {
   'single-leg-rdl-dumbbell': 'Stiff-Legged Dumbbell Deadlift',
   'smith-machine-rdl': 'Smith Machine Stiff-Legged Deadlift',
   'single-arm-cable-row': 'Seated One-arm Cable Pulley Rows',
+  // V7 exact-name injection
+  'x-preacher-curl-machine': 'Machine Preacher Curls',
+  'x-machine-seated-tricep-dip': 'Machine Triceps Extension',
+  'x-calf-press-on-leg-press': 'Calf Press On The Leg Press Machine',
+  'x-machine-incline-chest-press': 'Leverage Incline Chest Press',
+  'x-machine-seated-row': 'Leverage Iso Row',
+  'x-smith-machine-stiff-leg-deadlift': 'Smith Machine Stiff-Legged Deadlift',
+  'x-machine-leg-extension': 'Leg Extensions',
+  'x-machine-ab-crunch': 'Ab Crunch Machine',
+  'x-cable-lat-pulldown-wide-grip': 'Wide-Grip Lat Pulldown',
+  'x-hack-squat': 'Hack Squat',
+  'x-machine-back-extension': 'Hyperextensions (Back Extensions)',
+  'x-machine-leg-press': 'Leg Press',
+  'x-cable-reverse-fly': 'Cable Rear Delt Fly',
+  'x-machine-hip-adduction': 'Thigh Adductor',
+  'x-cable-one-arm-tricep-pushdown': 'Reverse Grip Triceps Pushdown',
+  'x-cable-one-arm-tricep-extension': 'Cable One Arm Tricep Extension',
+  'x-cable-bayesian-curl': 'Standing One-Arm Cable Curl',
+  'x-cable-lateral-raise': 'Cable Lateral Raise',
+  'x-machine-lat-pulldown': 'Wide-Grip Lat Pulldown',
+  'x-machine-seated-leg-curl': 'Seated Leg Curl',
+  'x-machine-calf-press': 'Calf Press On The Leg Press Machine',
+  'x-machine-deltoid-raise': 'Machine Lateral Raise',
+  'x-machine-seated-calf-raise': 'Seated Calf Raise',
+  'x-machine-calf-raise': 'Standing Calf Raises',
+  'x-machine-fly': 'Butterfly',
+  'x-machine-bench-press': 'Machine Bench Press',
+  'x-cable-pullover-supine': 'Straight-Arm Pulldown',
+  'x-cable-tricep-pushdown-v-bar': 'Triceps Pushdown',
+  'x-cable-rope-overhead-tricep-extension': 'Cable Rope Overhead Triceps Extension',
+  'x-cable-bicep-curl': 'Standing Biceps Cable Curl',
+  'x-machine-lateral-shoulder-raise': 'Machine Lateral Raise',
+  'x-cable-kneeling-crunch-rope': 'Cable Crunch',
+  'x-dumbbell-alternating-bicep-curl': 'Dumbbell Bicep Curl',
+  'x-smith-machine-deadlift': 'Barbell Deadlift',
+  'x-t-bar-row': 'Lying T-Bar Row',
+  'x-cable-seated-row': 'Seated Cable Rows',
   // V5 additions
   'larsen-press': 'Barbell Bench Press - Medium Grip',
   'spoto-press': 'Barbell Bench Press - Medium Grip',
@@ -247,7 +284,8 @@ const byExact = new Map(dataset.map((ex) => [ex.name, ex]))
 
 const ours =
   readFileSync('src/data/exercises.ts', 'utf8') +
-  readFileSync('src/data/exercisesExtra.ts', 'utf8')
+  readFileSync('src/data/exercisesExtra.ts', 'utf8') +
+  readFileSync('src/data/exercisesExact.ts', 'utf8')
 const entries = [...ours.matchAll(/id: '([a-z0-9-]+)', name: (?:'((?:[^'\\]|\\')*)'|"([^"]*)")/g)].map(
   (m) => ({
     id: m[1],

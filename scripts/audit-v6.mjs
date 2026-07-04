@@ -9,9 +9,10 @@ function parse(file) {
 
 const base = parse('src/data/exercises.ts')
 const extra = parse('src/data/exercisesExtra.ts')
+const exact = parse('src/data/exercisesExact.ts')
 
-const allIds = [...base.ids, ...extra.ids]
-const allNames = [...base.names, ...extra.names]
+const allIds = [...base.ids, ...extra.ids, ...exact.ids]
+const allNames = [...base.names, ...extra.names, ...exact.names]
 
 // duplicate ids across both files
 const seen = new Set()
@@ -24,9 +25,11 @@ for (const id of allIds) {
 // muscleDetail coverage (both maps)
 const md = readFileSync('src/data/muscleDetail.ts', 'utf8')
 const mdExtra = readFileSync('src/data/exercisesExtra.ts', 'utf8')
+const mdExact = readFileSync('src/data/exercisesExact.ts', 'utf8')
 const covered = new Set([
   ...[...md.matchAll(/'([a-z0-9-]+)': \{ primary/g)].map((m) => m[1]),
   ...[...mdExtra.matchAll(/'([a-z0-9-]+)': \{ primary/g)].map((m) => m[1]),
+  ...[...mdExact.matchAll(/'([a-z0-9-]+)': \{ primary/g)].map((m) => m[1]),
 ])
 const missing = allIds.filter((id) => !covered.has(id))
 

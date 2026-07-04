@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { ALL_EXERCISES } from '../data/exercises'
-import { EXERCISE_IMAGES } from '../data/exerciseImages'
 import { getMuscleTarget } from '../data/muscleDetail'
 import { findLastPerformance } from '../logic/progression'
+import { searchExercises } from '../logic/search'
 import ExerciseDetail from '../components/ExerciseDetail'
+import ExerciseImage from '../components/ExerciseImage'
 import type { Exercise, MuscleGroup, WorkoutSession } from '../types'
 import './LibraryScreen.css'
 
@@ -34,11 +35,9 @@ export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[]
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Exercise | null>(null)
 
-  const results = ALL_EXERCISES.filter(
-    (e) =>
-      (muscle === null || e.muscle === muscle) &&
-      (query === '' || e.name.toLowerCase().includes(query.toLowerCase()))
-  )
+  const byMuscle =
+    muscle === null ? ALL_EXERCISES : ALL_EXERCISES.filter((e) => e.muscle === muscle)
+  const results = searchExercises(byMuscle, query)
 
   return (
     <div className="library">
@@ -71,18 +70,11 @@ export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[]
       <ul className="library__list">
         {results.map((e) => {
           const last = findLastPerformance(sessions, e.id)
-          const image = EXERCISE_IMAGES[e.id]
           const target = getMuscleTarget(e.id)
           return (
             <li key={e.id} className="library__item">
               <button className="library__row" onClick={() => setSelected(e)}>
-                {image ? (
-                  <img className="library__thumb" src={image} alt="" loading="lazy" />
-                ) : (
-                  <span className="library__thumb library__thumb--empty" aria-hidden="true">
-                    {e.name.charAt(0)}
-                  </span>
-                )}
+                <ExerciseImage exerciseId={e.id} variant="thumb" />
                 <div className="library__row-main">
                   <span className="library__name">{e.name}</span>
                   <span className="library__meta">

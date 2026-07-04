@@ -15,12 +15,13 @@ import {
 import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
 import ExercisePicker from '../components/ExercisePicker'
+import ExerciseImage from '../components/ExerciseImage'
 import PRCelebration from '../components/PRCelebration'
 import Sparkline from '../components/Sparkline'
 import { getExerciseById } from '../data/exercises'
-import { EXERCISE_IMAGES } from '../data/exerciseImages'
 import { coachInsight } from '../logic/coach'
 import { bestE1rm, e1rm, strengthTrend } from '../logic/progression'
+import { vibrate } from '../logic/haptics'
 import { recallSettingsNote } from '../hooks/useAppData'
 import { useElapsed } from '../hooks/useElapsed'
 import type { SetType, WorkoutSession } from '../types'
@@ -139,6 +140,7 @@ export default function LogScreen({
     const entry = session.exercises[exIndex]
     const set = entry.sets[setIndex]
     const turningOn = set.logged !== true
+    let isPr = false
 
     if (turningOn && (set.type ?? 'R') !== 'W') {
       const historical = historicalBests.get(entry.exerciseId) ?? 0
@@ -152,11 +154,16 @@ export default function LogScreen({
       // Only celebrate genuine improvements over an existing history —
       // a first-ever session would otherwise "PR" on every set.
       if (historical > 0 && est > historical && est > sessionPrior) {
+        isPr = true
         const exercise = getExerciseById(entry.exerciseId)
         setPr({ id: Date.now(), value: Math.round(est), name: exercise?.name ?? '' })
         window.setTimeout(() => setPr((p) => (p && Date.now() - p.id >= 2100 ? null : p)), 2200)
       }
     }
+
+    // Haptics: distinct celebratory pattern for a PR, light pulse for a normal
+    // log. Guarded so it no-ops on iOS where the Vibration API is unavailable.
+    if (turningOn) vibrate(isPr ? [100, 50, 100, 50, 200] : 50)
 
     mutate((d) => {
       d.exercises[exIndex].sets[setIndex].logged = turningOn
@@ -224,7 +231,6 @@ export default function LogScreen({
   const entry = session.exercises[safeIndex]
   const exercise = entry ? getExerciseById(entry.exerciseId) : undefined
   const insight = exercise ? coachInsight(exercise, sessions) : null
-  const image = entry ? EXERCISE_IMAGES[entry.exerciseId] : undefined
   const trend = entry
     ? strengthTrend(sessions, entry.exerciseId)
         .slice(-8)
@@ -354,7 +360,7 @@ export default function LogScreen({
                 }}
               >
                 <div className="log__hero">
-                  {image && <img className="log__hero-img" src={image} alt="" draggable={false} />}
+                  <ExerciseImage exerciseId={entry.exerciseId} variant="hero" />
                   <div className="log__hero-shade" />
                   <div className="log__hero-text">
                     <h3 className="log__exercise-name">{exercise?.name ?? entry.exerciseId}</h3>

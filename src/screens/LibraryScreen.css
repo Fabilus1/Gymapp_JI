@@ -74,25 +74,6 @@
   cursor: pointer;
 }
 
-.library__thumb {
-  width: 52px;
-  height: 52px;
-  border-radius: 10px;
-  object-fit: cover;
-  background: #fff;
-  flex-shrink: 0;
-}
-
-.library__thumb--empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-raised);
-  color: var(--text-tertiary);
-  font-size: 18px;
-  font-weight: 700;
-}
-
 .library__row-main {
   display: flex;
   flex-direction: column;

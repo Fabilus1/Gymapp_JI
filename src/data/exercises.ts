@@ -94,7 +94,7 @@ export const EXERCISES: Exercise[] = [
   // Triceps
   { id: 'close-grip-bench-press', name: 'Close-Grip Bench Press (Barbell)', muscle: 'triceps', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Hands just inside shoulder width, elbows track close to the torso, press through the triceps.' },
   { id: 'diamond-push-up', name: 'Diamond Push-Up (Bodyweight)', muscle: 'triceps', type: 'compound', equipment: 'bodyweight', repRange: [6, 10], increment: 5, cue: 'Hands together under the chest, lower with elbows close to the body, press back up.' },
-  { id: 'dips-triceps', name: 'Dips (Bodyweight, Bodyweight, Triceps-Focused)', muscle: 'triceps', type: 'compound', equipment: 'bodyweight', repRange: [6, 10], increment: 5, cue: 'Torso upright to bias triceps, lower until a stretch in the shoulders, press back to lockout.' },
+  { id: 'dips-triceps', name: 'Dips (Bodyweight, Triceps-Focused)', muscle: 'triceps', type: 'compound', equipment: 'bodyweight', repRange: [6, 10], increment: 5, cue: 'Torso upright to bias triceps, lower until a stretch in the shoulders, press back to lockout.' },
   { id: 'tricep-pushdown', name: 'Tricep Pushdown (Cable)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Elbows pinned at your sides, extend fully, control the return without letting the elbows flare.' },
   { id: 'overhead-tricep-extension-dumbbell', name: 'Overhead Tricep Extension (Dumbbell)', muscle: 'triceps', type: 'isolation', equipment: 'dumbbell', repRange: [10, 15], increment: 2.5, cue: 'Elbows pointed forward and stationary, lower behind the head, extend fully without flaring.' },
   { id: 'skull-crushers', name: 'Skull Crushers (Barbell)', muscle: 'triceps', type: 'isolation', equipment: 'barbell', repRange: [10, 15], increment: 2.5, cue: 'Elbows stay fixed in place, lower the bar toward the forehead, extend back up under control.' },
@@ -191,7 +191,7 @@ export const EXERCISES: Exercise[] = [
 
   // Triceps
   { id: 'rope-pushdown', name: 'Rope Pushdown (Cable)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Split the rope apart at the bottom, elbows pinned, full lockout each rep.' },
-  { id: 'single-arm-cable-tricep-extension', name: 'Single-Arm Tricep Extension (Cable, Cable, D-Ring Strap)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'D-ring or strap in one hand, elbow pinned at your side, extend fully and control the return — strict, no torso lean.' },
+  { id: 'single-arm-cable-tricep-extension', name: 'Single-Arm Tricep Extension (Cable, D-Ring Strap)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'D-ring or strap in one hand, elbow pinned at your side, extend fully and control the return — strict, no torso lean.' },
   { id: 'single-arm-overhead-cable-extension', name: 'Single-Arm Overhead Extension (Cable)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Face away from a low pulley, arm overhead, deep stretch behind the head, extend without flaring.' },
   { id: 'reverse-grip-pushdown', name: 'Reverse-Grip Pushdown (Cable)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Underhand grip on a bar, elbows pinned, biases the medial head — usually lighter than a normal pushdown.' },
   { id: 'jm-press', name: 'JM Press (Barbell)', muscle: 'triceps', type: 'compound', equipment: 'barbell', repRange: [6, 10], increment: 5, cue: 'Hybrid of close-grip bench and skull crusher — lower to the chin/neck with elbows forward, press back up.' },
@@ -225,14 +225,14 @@ export const EXERCISES: Exercise[] = [
   // Back
   { id: 'assisted-pull-up-machine', name: 'Assisted Pull-Up (Machine)', muscle: 'back', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Kneel on the pad, same pulling mechanics as a pull-up — reduce assistance over time (lower counterweight = harder).' },
   { id: 'machine-pullover', name: 'Pullover (Machine)', muscle: 'back', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Elbows or upper arms on the pads, sweep down in an arc using the lats, not the arms.' },
-  { id: 'cable-pullover', name: 'Pullover (Cable, Cable, Rope)', muscle: 'back', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Hinge slightly facing a high pulley, arms long, pull the rope down to your hips in an arc.' },
+  { id: 'cable-pullover', name: 'Pullover (Cable, Rope)', muscle: 'back', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Hinge slightly facing a high pulley, arms long, pull the rope down to your hips in an arc.' },
   { id: 'wide-grip-seated-row', name: 'Wide-Grip Seated Row (Cable)', muscle: 'back', type: 'compound', equipment: 'cable', repRange: [6, 10], increment: 5, cue: 'Wide bar, pull high toward the sternum with elbows out — biases upper back and rear delts.' },
   { id: 'smith-machine-row', name: 'Row (Smith Machine)', muscle: 'back', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Fixed bar path lets you focus on the squeeze — hinge, pull to the lower ribs, control down.' },
   { id: 'cable-deadlift', name: 'Pull-Through Deadlift (Cable)', muscle: 'back', type: 'compound', equipment: 'cable', repRange: [8, 12], increment: 5, cue: 'Low pulley between the legs, hinge and stand tall — a friendly hinge pattern for high-rep work.' },
 
   // Shoulders
   { id: 'cable-front-raise', name: 'Front Raise (Cable)', muscle: 'shoulders', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Cable behind you at the bottom, raise straight ahead to eye level — constant tension on the front delt.' },
-  { id: 'machine-rear-delt-row', name: 'Rear Delt Row (Machine, Machine, High Row)', muscle: 'shoulders', type: 'compound', equipment: 'machine', repRange: [8, 12], increment: 5, cue: 'Elbows high and wide, pull toward the ears — targets rear delts and upper back together.' },
+  { id: 'machine-rear-delt-row', name: 'Rear Delt Row (Machine, High Row)', muscle: 'shoulders', type: 'compound', equipment: 'machine', repRange: [8, 12], increment: 5, cue: 'Elbows high and wide, pull toward the ears — targets rear delts and upper back together.' },
   { id: 'cable-shoulder-press', name: 'Shoulder Press (Cable)', muscle: 'shoulders', type: 'compound', equipment: 'cable', repRange: [6, 10], increment: 5, cue: 'Seated or standing between low pulleys, press up — tension stays on through lockout.' },
   { id: 'lying-cable-lateral-raise', name: 'Lying Lateral Raise (Cable)', muscle: 'shoulders', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Side-lying on an incline bench, raise the cable across your body — brutal stretch on the side delt.' },
 
@@ -252,10 +252,10 @@ export const EXERCISES: Exercise[] = [
 
   // Arms
   { id: 'machine-bicep-curl', name: 'Bicep Curl (Machine)', muscle: 'biceps', type: 'isolation', equipment: 'machine', repRange: [10, 15], increment: 2.5, cue: 'Arms locked on the pad, curl through the machine arc, squeeze at the top without lifting the elbows.' },
-  { id: 'high-cable-curl', name: 'High Curl (Cable, Cable, Crucifix)', muscle: 'biceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Arms out to the sides at shoulder height, curl toward the ears — peak-contraction focused.' },
+  { id: 'high-cable-curl', name: 'High Curl (Cable, Crucifix)', muscle: 'biceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Arms out to the sides at shoulder height, curl toward the ears — peak-contraction focused.' },
   { id: 'single-arm-cable-curl', name: 'Single-Arm Curl (Cable)', muscle: 'biceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Low pulley in one hand, elbow pinned, strict curl — fix left/right imbalances.' },
   { id: 'single-arm-cable-lateral', name: 'Single-Arm Kickback (Cable)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Hinge forward, no attachment needed — grip the ball of the cable, extend straight back.' },
-  { id: 'cross-cable-tricep-extension', name: 'Cross- Tricep Extension (Cable)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Two high pulleys crossed in front of you, extend both arms down and out simultaneously.' },
+  { id: 'cross-cable-tricep-extension', name: 'Crossover Tricep Extension (Cable)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Two high pulleys crossed in front of you, extend both arms down and out simultaneously.' },
   { id: 'smith-close-grip-bench', name: 'Close-Grip Bench (Smith Machine)', muscle: 'triceps', type: 'compound', equipment: 'machine', repRange: [6, 10], increment: 5, cue: 'Hands inside shoulder width on the fixed bar, elbows tucked, press through the triceps.' },
 
   // Core & misc
@@ -312,10 +312,11 @@ export const EXERCISES: Exercise[] = [
   { id: 'katana-extension', name: 'Katana Extension (Cable)', muscle: 'triceps', type: 'isolation', equipment: 'cable', repRange: [10, 15], increment: 2.5, cue: 'Facing away from a high pulley, arms overhead like drawing a sword — huge long-head stretch behind the head.' },
 ]
 
-// V6 mass expansion lives in a separate module for maintainability.
+// V6 mass expansion + V7 exact-name injection live in separate modules.
 import { EXTRA_EXERCISES } from './exercisesExtra'
+import { EXACT_EXERCISES } from './exercisesExact'
 
-export const ALL_EXERCISES: Exercise[] = [...EXERCISES, ...EXTRA_EXERCISES]
+export const ALL_EXERCISES: Exercise[] = [...EXERCISES, ...EXTRA_EXERCISES, ...EXACT_EXERCISES]
 
 export function getExerciseById(id: string): Exercise | undefined {
   return ALL_EXERCISES.find((e) => e.id === id)

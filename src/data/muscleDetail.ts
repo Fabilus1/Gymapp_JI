@@ -280,10 +280,12 @@ export const MUSCLE_DETAIL: Record<string, MuscleTarget> = {
 }
 
 import { EXTRA_MUSCLE_DETAIL } from './exercisesExtra'
+import { EXACT_MUSCLE_DETAIL } from './exercisesExact'
 
 const ALL_MUSCLE_DETAIL: Record<string, MuscleTarget> = {
   ...MUSCLE_DETAIL,
   ...EXTRA_MUSCLE_DETAIL,
+  ...EXACT_MUSCLE_DETAIL,
 }
 
 export function getMuscleTarget(exerciseId: string): MuscleTarget | undefined {
