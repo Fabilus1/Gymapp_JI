@@ -25,7 +25,12 @@ import FinishModal from '../components/FinishModal'
 import Sparkline from '../components/Sparkline'
 import { getExerciseById } from '../data/exercises'
 import { coachInsight } from '../logic/coach'
-import { bestE1rm, e1rm, strengthTrend } from '../logic/progression'
+import { e1rm } from '../logic/progression'
+import {
+  buildHistoryIndex,
+  bestE1rmFromIndex,
+  strengthTrendFromIndex,
+} from '../logic/history'
 import { vibrate } from '../logic/haptics'
 import { displayWeightStr, fromDisplayWeight, type Units } from '../logic/units'
 import { recallSettingsNote } from '../hooks/useAppData'
@@ -104,13 +109,16 @@ export default function LogScreen({
   const [plateWeight, setPlateWeight] = useState<number | null>(null)
   const elapsed = useElapsed(session?.date ?? null)
 
+  // Build the per-exercise history once, then pull bests/trends from it.
+  const historyIndex = useMemo(() => buildHistoryIndex(sessions), [sessions])
+
   const historicalBests = useMemo(() => {
     const map = new Map<string, number>()
     for (const e of session?.exercises ?? []) {
-      map.set(e.exerciseId, bestE1rm(sessions, e.exerciseId))
+      map.set(e.exerciseId, bestE1rmFromIndex(historyIndex, e.exerciseId))
     }
     return map
-  }, [sessions, session?.exercises])
+  }, [historyIndex, session?.exercises])
 
   const groups = useMemo(() => buildGroups(session?.exercises ?? []), [session?.exercises])
 
@@ -289,7 +297,7 @@ export default function LogScreen({
     const entry = session!.exercises[exIndex]
     const exercise = getExerciseById(entry.exerciseId)
     const insight = exercise ? coachInsight(exercise, sessions) : null
-    const trend = strengthTrend(sessions, entry.exerciseId)
+    const trend = strengthTrendFromIndex(historyIndex, entry.exerciseId)
       .slice(-8)
       .map((p) => p.weight)
     const topWeight = Math.max(0, ...entry.sets.map((s) => s.weight))
@@ -625,7 +633,11 @@ export default function LogScreen({
       )}
 
       {plateWeight !== null && (
-        <PlateCalculator weight={plateWeight} onClose={() => setPlateWeight(null)} />
+        <PlateCalculator
+          weight={plateWeight}
+          units={units}
+          onClose={() => setPlateWeight(null)}
+        />
       )}
 
       {finishOpen && (

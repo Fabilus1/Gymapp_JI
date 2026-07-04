@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CustomPlan, Settings, WorkoutSession } from '../types'
 import {
   getSettings,
@@ -37,6 +37,37 @@ export function useAppData() {
   const [customPlans, setCustomPlans] = useState<CustomPlan[]>([])
   const [activeSession, setActiveSession] = useState<WorkoutSession | null>(null)
   const [loaded, setLoaded] = useState(false)
+
+  // Debounced persistence for the active session — React state updates
+  // instantly on every keystroke, the IndexedDB write is coalesced so typing
+  // never blocks on disk. `undefined` = nothing pending.
+  const pendingSessionRef = useRef<WorkoutSession | null | undefined>(undefined)
+  const flushTimerRef = useRef<number | null>(null)
+
+  const flushActiveSession = useCallback(async () => {
+    if (flushTimerRef.current !== null) {
+      window.clearTimeout(flushTimerRef.current)
+      flushTimerRef.current = null
+    }
+    if (pendingSessionRef.current !== undefined) {
+      const toSave = pendingSessionRef.current
+      pendingSessionRef.current = undefined
+      await saveInProgressSession(toSave)
+    }
+  }, [])
+
+  // Best-effort flush when the tab is backgrounded/closed mid-set.
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') void flushActiveSession()
+    }
+    document.addEventListener('visibilitychange', onHide)
+    window.addEventListener('pagehide', onHide)
+    return () => {
+      document.removeEventListener('visibilitychange', onHide)
+      window.removeEventListener('pagehide', onHide)
+    }
+  }, [flushActiveSession])
 
   useEffect(() => {
     Promise.all([getSettings(), getAllSessions(), getInProgressSession(), getCustomPlans()]).then(
@@ -90,14 +121,22 @@ export function useAppData() {
     await saveInProgressSession(session)
   }, [settings, sessions, customPlans])
 
-  const updateActiveSession = useCallback(async (session: WorkoutSession) => {
-    setActiveSession(session)
-    await saveInProgressSession(session)
-  }, [])
+  const updateActiveSession = useCallback((session: WorkoutSession) => {
+    setActiveSession(session) // instant UI
+    pendingSessionRef.current = session
+    if (flushTimerRef.current !== null) window.clearTimeout(flushTimerRef.current)
+    flushTimerRef.current = window.setTimeout(() => {
+      void flushActiveSession()
+    }, 500)
+  }, [flushActiveSession])
 
   const finishWorkout = useCallback(
     async (rpe?: number) => {
       if (!activeSession || !settings) return
+      // Drop any queued in-progress write; we're about to clear it.
+      if (flushTimerRef.current !== null) window.clearTimeout(flushTimerRef.current)
+      flushTimerRef.current = null
+      pendingSessionRef.current = undefined
       const cleaned: WorkoutSession = {
         ...activeSession,
         endedAt: new Date().toISOString(),
@@ -137,6 +176,9 @@ export function useAppData() {
   )
 
   const cancelWorkout = useCallback(async () => {
+    if (flushTimerRef.current !== null) window.clearTimeout(flushTimerRef.current)
+    flushTimerRef.current = null
+    pendingSessionRef.current = undefined
     setActiveSession(null)
     await saveInProgressSession(null)
   }, [])

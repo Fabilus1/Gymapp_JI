@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ALL_EXERCISES } from '../data/exercises'
 import { getMuscleTarget } from '../data/muscleDetail'
-import { findLastPerformance } from '../logic/progression'
+import { buildHistoryIndex, lastPerformanceFromIndex } from '../logic/history'
 import { searchExercises } from '../logic/search'
 import ExerciseDetail from '../components/ExerciseDetail'
 import ExerciseImage from '../components/ExerciseImage'
@@ -34,6 +34,9 @@ export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[]
   const [muscle, setMuscle] = useState<MuscleGroup | null>(null)
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Exercise | null>(null)
+
+  // One pass over history instead of rescanning it per exercise row.
+  const historyIndex = useMemo(() => buildHistoryIndex(sessions), [sessions])
 
   const byMuscle =
     muscle === null ? ALL_EXERCISES : ALL_EXERCISES.filter((e) => e.muscle === muscle)
@@ -69,7 +72,7 @@ export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[]
 
       <ul className="library__list">
         {results.map((e) => {
-          const last = findLastPerformance(sessions, e.id)
+          const last = lastPerformanceFromIndex(historyIndex, e.id)
           const target = getMuscleTarget(e.id)
           return (
             <li key={e.id} className="library__item">
@@ -82,7 +85,7 @@ export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[]
                     reps
                   </span>
                 </div>
-                <span className="library__last">{last ? daysAgoLabel(last.session.date) : ''}</span>
+                <span className="library__last">{last ? daysAgoLabel(last.date) : ''}</span>
               </button>
             </li>
           )

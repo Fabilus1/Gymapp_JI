@@ -1,23 +1,28 @@
 import { X } from 'lucide-react'
+import { toDisplayWeight, type Units } from '../logic/units'
 import './PlateCalculator.css'
 
-const BAR_LB = 45
-const PLATES = [45, 35, 25, 10, 5, 2.5]
-const PLATE_COLOR: Record<number, string> = {
-  45: '#3b82f6',
-  35: '#eab308',
-  25: '#22c55e',
-  10: '#f4f4f5',
-  5: '#a855f7',
-  2.5: '#f97316',
+// Per-unit bar weight and available plates.
+const CONFIG: Record<Units, { bar: number; plates: number[]; colors: Record<number, string> }> = {
+  lb: {
+    bar: 45,
+    plates: [45, 35, 25, 10, 5, 2.5],
+    colors: { 45: '#3b82f6', 35: '#eab308', 25: '#22c55e', 10: '#f4f4f5', 5: '#a855f7', 2.5: '#f97316' },
+  },
+  kg: {
+    bar: 20,
+    plates: [25, 20, 15, 10, 5, 2.5, 1.25],
+    // IWF-style plate colours
+    colors: { 25: '#ef4444', 20: '#3b82f6', 15: '#eab308', 10: '#22c55e', 5: '#f4f4f5', 2.5: '#ef4444', 1.25: '#c0c0c0' },
+  },
 }
 
-/** Greedy per-side plate breakdown for a target weight on a 45 lb bar. */
-function computePlates(target: number): { plate: number; count: number }[] {
-  let perSide = (target - BAR_LB) / 2
+/** Greedy per-side plate breakdown for a target on the given bar. */
+function computePlates(target: number, bar: number, plates: number[]): { plate: number; count: number }[] {
+  let perSide = (target - bar) / 2
   if (perSide <= 0) return []
   const out: { plate: number; count: number }[] = []
-  for (const p of PLATES) {
+  for (const p of plates) {
     const count = Math.floor(perSide / p)
     if (count > 0) {
       out.push({ plate: p, count })
@@ -29,15 +34,21 @@ function computePlates(target: number): { plate: number; count: number }[] {
 
 export default function PlateCalculator({
   weight,
+  units,
   onClose,
 }: {
+  /** stored weight in lb */
   weight: number
+  units: Units
   onClose: () => void
 }) {
-  const plates = computePlates(weight)
-  const perSide = Math.max(0, (weight - BAR_LB) / 2)
-  const leftover =
-    perSide - plates.reduce((s, p) => s + p.plate * p.count, 0)
+  const cfg = CONFIG[units]
+  // Convert the stored lb weight into the working unit before computing plates.
+  const target = toDisplayWeight(weight, units)
+  const plates = computePlates(target, cfg.bar, cfg.plates)
+  const perSide = Math.max(0, (target - cfg.bar) / 2)
+  const leftover = perSide - plates.reduce((s, p) => s + p.plate * p.count, 0)
+  const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/0$/, ''))
 
   return (
     <div className="plate" onClick={onClose}>
@@ -46,7 +57,7 @@ export default function PlateCalculator({
           <div>
             <h2 className="plate__title">Plate calculator</h2>
             <p className="plate__sub">
-              {weight} lb · 45 lb bar · {perSide % 1 === 0 ? perSide : perSide.toFixed(1)} lb per side
+              {fmt(target)} {units} · {cfg.bar} {units} bar · {fmt(perSide)} {units} per side
             </p>
           </div>
           <button className="plate__close" aria-label="Close" onClick={onClose}>
@@ -54,10 +65,10 @@ export default function PlateCalculator({
           </button>
         </div>
 
-        {weight < BAR_LB ? (
+        {target < cfg.bar ? (
           <p className="plate__note">Below the bar weight — no plates needed.</p>
         ) : plates.length === 0 ? (
-          <p className="plate__note">Just the empty 45 lb bar.</p>
+          <p className="plate__note">Just the empty {cfg.bar} {units} bar.</p>
         ) : (
           <>
             <div className="plate__viz" aria-hidden="true">
@@ -68,9 +79,9 @@ export default function PlateCalculator({
                     key={`${plate}-${i}`}
                     className="plate__disc"
                     style={{
-                      background: PLATE_COLOR[plate],
-                      height: `${44 + PLATES.indexOf(plate) * -4 + (plate >= 25 ? 20 : 0)}px`,
-                      color: plate === 10 ? '#18181b' : '#fff',
+                      background: cfg.colors[plate],
+                      height: `${44 + cfg.plates.indexOf(plate) * -4 + (plate >= cfg.plates[2] ? 20 : 0)}px`,
+                      color: cfg.colors[plate] === '#f4f4f5' || cfg.colors[plate] === '#c0c0c0' ? '#18181b' : '#fff',
                     }}
                   >
                     {plate}
@@ -83,15 +94,15 @@ export default function PlateCalculator({
             <ul className="plate__list">
               {plates.map(({ plate, count }) => (
                 <li key={plate} className="plate__row">
-                  <span className="plate__swatch" style={{ background: PLATE_COLOR[plate] }} />
-                  <span className="plate__plate-lb">{plate} lb</span>
+                  <span className="plate__swatch" style={{ background: cfg.colors[plate] }} />
+                  <span className="plate__plate-lb">{plate} {units}</span>
                   <span className="plate__count">× {count} per side</span>
                 </li>
               ))}
             </ul>
             {leftover > 0.01 && (
               <p className="plate__note">
-                Can't make the last {leftover.toFixed(1)} lb/side with standard plates.
+                Can't make the last {fmt(leftover)} {units}/side with standard plates.
               </p>
             )}
           </>

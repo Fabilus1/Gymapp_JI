@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import SegmentBar from '../components/SegmentBar'
 import { addRecoveryEntry, getAllRecoveryEntries, newId } from '../db/db'
 import { muscleRecovery, STATUS_LABELS } from '../logic/recovery'
@@ -42,11 +42,17 @@ export default function RecoveryScreen({ sessions }: { sessions: WorkoutSession[
     setLogging(null)
   }
 
+  // Compute all muscle statuses once per data change, not on every render.
+  const recoveries = useMemo(
+    () => new Map(MUSCLES.map((m) => [m, muscleRecovery(m, sessions, log)])),
+    [sessions, log]
+  )
+
   return (
     <div className="recovery">
       <ul className="recovery__list">
         {MUSCLES.map((muscle) => {
-          const r = muscleRecovery(muscle, sessions, log)
+          const r = recoveries.get(muscle)!
           const isLogging = logging === muscle
           const readiness = { 'trained-today': 1, recovering: 2, 'almost-ready': 3, ready: 4 }[
             r.status

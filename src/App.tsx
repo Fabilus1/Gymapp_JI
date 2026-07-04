@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import Header from './components/Header'
 import Splash from './components/Splash'
+import Toast from './components/Toast'
 import BottomNav, { type TabId } from './components/BottomNav'
 import RestTimer from './components/RestTimer'
 import TodayScreen from './screens/TodayScreen'
@@ -144,6 +145,7 @@ export default function App() {
         />
       )}
       {!settingsOpen && <BottomNav active={tab} onChange={setTab} hidden={navHidden} />}
+      <Toast />
       <AnimatePresence>{showSplash && <Splash key="splash" />}</AnimatePresence>
     </>
   )

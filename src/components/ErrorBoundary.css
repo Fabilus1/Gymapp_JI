@@ -1,0 +1,45 @@
+.errb {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+
+.errb__card {
+  max-width: 340px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.errb__title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.errb__body {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.errb__btn {
+  align-self: center;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 13px 26px;
+  cursor: pointer;
+}
+
+.errb__hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}

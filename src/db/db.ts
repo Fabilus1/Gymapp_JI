@@ -1,4 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import { notify } from '../logic/notify'
 import type {
   WorkoutSession,
   BodyWeightEntry,
@@ -44,6 +45,25 @@ export function newId(): string {
   return crypto.randomUUID()
 }
 
+/**
+ * Run an IndexedDB write with one retry, and surface a toast if it still
+ * fails (quota exceeded, private mode, disk pressure) so a set is never
+ * silently lost. Re-throws so callers can react too.
+ */
+async function guardedWrite<T>(op: () => Promise<T>, what: string): Promise<T> {
+  try {
+    return await op()
+  } catch {
+    try {
+      await new Promise((r) => setTimeout(r, 150))
+      return await op()
+    } catch (err) {
+      notify(`Couldn't save ${what}. Your last change may not be stored — free up space and re-open.`)
+      throw err
+    }
+  }
+}
+
 // ---- Settings ----
 
 export async function getSettings(): Promise<Settings> {
@@ -54,7 +74,7 @@ export async function getSettings(): Promise<Settings> {
 
 export async function saveSettings(settings: Settings): Promise<void> {
   const db = await getDb()
-  await db.put('kv', settings, 'settings')
+  await guardedWrite(() => db.put('kv', settings, 'settings'), 'settings')
 }
 
 // ---- In-progress session (survives reload) ----
@@ -68,7 +88,7 @@ export async function getInProgressSession(): Promise<WorkoutSession | null> {
 export async function saveInProgressSession(session: WorkoutSession | null): Promise<void> {
   const db = await getDb()
   if (session) {
-    await db.put('kv', session, 'inProgressSession')
+    await guardedWrite(() => db.put('kv', session, 'inProgressSession'), 'your workout')
   } else {
     await db.delete('kv', 'inProgressSession')
   }
@@ -123,7 +143,7 @@ export async function getAllSessions(): Promise<WorkoutSession[]> {
 
 export async function saveSession(session: WorkoutSession): Promise<void> {
   const db = await getDb()
-  await db.put('sessions', session)
+  await guardedWrite(() => db.put('sessions', session), 'your finished workout')
 }
 
 // ---- Body weight ----
@@ -136,7 +156,7 @@ export async function getAllBodyWeightEntries(): Promise<BodyWeightEntry[]> {
 
 export async function addBodyWeightEntry(entry: BodyWeightEntry): Promise<void> {
   const db = await getDb()
-  await db.put('bodyWeight', entry)
+  await guardedWrite(() => db.put('bodyWeight', entry), 'your body weight')
 }
 
 // ---- Recovery / soreness log ----
@@ -149,7 +169,7 @@ export async function getAllRecoveryEntries(): Promise<RecoveryEntry[]> {
 
 export async function addRecoveryEntry(entry: RecoveryEntry): Promise<void> {
   const db = await getDb()
-  await db.put('recovery', entry)
+  await guardedWrite(() => db.put('recovery', entry), 'your soreness entry')
 }
 
 // ---- Export / import (JSON backup) ----

@@ -5,7 +5,7 @@ import WorkoutCalendar from '../components/WorkoutCalendar'
 import { weeklyVolume } from '../logic/volume'
 import { addBodyWeightEntry, getAllBodyWeightEntries, newId } from '../db/db'
 import { getExerciseById, ALL_EXERCISES } from '../data/exercises'
-import { strengthTrend } from '../logic/progression'
+import { buildHistoryIndex, strengthTrendFromIndex } from '../logic/history'
 import { toDisplayWeight, fromDisplayWeight, type Units } from '../logic/units'
 import type { BodyWeightEntry, WorkoutSession } from '../types'
 import './ProgressScreen.css'
@@ -31,15 +31,14 @@ export default function ProgressScreen({
     getAllBodyWeightEntries().then(setEntries)
   }, [])
 
+  // One pass over history, reused for the default pick and the trend chart.
+  const historyIndex = useMemo(() => buildHistoryIndex(sessions), [sessions])
+
   useEffect(() => {
     if (exerciseId !== null || sessions.length === 0) return
-    for (const e of ALL_EXERCISES) {
-      if (strengthTrend(sessions, e.id).length > 0) {
-        setExerciseId(e.id)
-        return
-      }
-    }
-  }, [sessions, exerciseId])
+    const firstWithHistory = ALL_EXERCISES.find((e) => historyIndex.has(e.id))
+    if (firstWithHistory) setExerciseId(firstWithHistory.id)
+  }, [sessions, exerciseId, historyIndex])
 
   const latest = entries.length > 0 ? entries[0] : null
   const loggedThisWeek =
@@ -79,9 +78,12 @@ export default function ProgressScreen({
   const trendPoints = useMemo(
     () =>
       exerciseId
-        ? strengthTrend(sessions, exerciseId).map((p) => ({ date: p.date, value: p.weight }))
+        ? strengthTrendFromIndex(historyIndex, exerciseId).map((p) => ({
+            date: p.date,
+            value: toDisplayWeight(p.weight, units),
+          }))
         : [],
-    [sessions, exerciseId]
+    [historyIndex, exerciseId, units]
   )
 
   const delta =
