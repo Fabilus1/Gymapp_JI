@@ -48,6 +48,8 @@ export interface SessionExercise {
   sets: SetEntry[]
   /** Free-text machine setup, e.g. "Seat 4, Pin 12" — recalled next session. */
   settingsNote?: string
+  /** When true, this exercise is supersetted with the one after it in the list. */
+  supersetNext?: boolean
 }
 
 export interface WorkoutSession {
@@ -101,6 +103,8 @@ export interface ExerciseMeta {
   targetSets?: number
   /** overrides the exercise's default hypertrophy rep range */
   repRange?: [number, number]
+  /** superset this exercise with the next one in the day */
+  supersetNext?: boolean
 }
 
 /** A day within a split template, e.g. "Full Body A" */

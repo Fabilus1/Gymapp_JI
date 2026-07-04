@@ -33,7 +33,21 @@ export default function RestTimer({
     return (
       <div className="rest">
         <span className="rest__label">Rest</span>
+        <button
+          className="rest__adjust"
+          onClick={() => timer.adjust(-30)}
+          aria-label="Subtract 30 seconds"
+        >
+          −30
+        </button>
         <span className="rest__count">{fmt(timer.remaining)}</span>
+        <button
+          className="rest__adjust"
+          onClick={() => timer.adjust(30)}
+          aria-label="Add 30 seconds"
+        >
+          +30
+        </button>
         <button className="rest__skip" onClick={timer.cancel}>
           Skip
         </button>

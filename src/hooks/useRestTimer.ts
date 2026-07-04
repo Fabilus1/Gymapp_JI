@@ -6,6 +6,8 @@ export interface RestTimer {
   /** true for a few seconds after the countdown hits zero */
   done: boolean
   start: (seconds: number) => void
+  /** add/subtract seconds from a running timer (clamped ≥ 5s) */
+  adjust: (delta: number) => void
   cancel: () => void
 }
 
@@ -59,6 +61,13 @@ export function useRestTimer(): RestTimer {
     setRemaining(seconds)
   }, [])
 
+  const adjust = useCallback((delta: number) => {
+    if (endRef.current === null) return
+    const left = Math.max(5, Math.round((endRef.current - Date.now()) / 1000) + delta)
+    endRef.current = Date.now() + left * 1000
+    setRemaining(left)
+  }, [])
+
   const cancel = useCallback(() => {
     if (doneTimeoutRef.current) window.clearTimeout(doneTimeoutRef.current)
     endRef.current = null
@@ -66,5 +75,5 @@ export function useRestTimer(): RestTimer {
     setDone(false)
   }, [])
 
-  return { remaining, done, start, cancel }
+  return { remaining, done, start, adjust, cancel }
 }

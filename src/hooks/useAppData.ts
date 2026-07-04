@@ -80,6 +80,7 @@ export function useAppData() {
           exerciseId,
           sets: Array.from({ length: setCount }, () => ({ weight, reps })),
           settingsNote: recallSettingsNote(sessions, exerciseId),
+          ...(meta?.supersetNext ? { supersetNext: true } : {}),
         }
       }),
     }

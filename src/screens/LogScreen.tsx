@@ -8,15 +8,18 @@ import {
   Flag,
   Info,
   Layers,
+  Link2,
   List,
   Plus,
   Target,
+  Weight,
 } from 'lucide-react'
 import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
 import ExercisePicker from '../components/ExercisePicker'
 import ExerciseImage from '../components/ExerciseImage'
 import PRCelebration from '../components/PRCelebration'
+import PlateCalculator from '../components/PlateCalculator'
 import Sparkline from '../components/Sparkline'
 import { getExerciseById } from '../data/exercises'
 import { coachInsight } from '../logic/coach'
@@ -24,7 +27,7 @@ import { bestE1rm, e1rm, strengthTrend } from '../logic/progression'
 import { vibrate } from '../logic/haptics'
 import { recallSettingsNote } from '../hooks/useAppData'
 import { useElapsed } from '../hooks/useElapsed'
-import type { SetType, WorkoutSession } from '../types'
+import type { Exercise, SessionExercise, SetType, WorkoutSession } from '../types'
 import './LogScreen.css'
 
 const SET_TYPE_ORDER: SetType[] = ['R', 'W', 'F', 'P', 'M']
@@ -43,6 +46,29 @@ const slideVariants = {
   exit: (dir: number) => ({ x: dir > 0 ? -340 : 340, opacity: 0 }),
 }
 
+/** Group consecutive exercises linked by supersetNext into single focus cards. */
+function buildGroups(exercises: SessionExercise[]): number[][] {
+  const groups: number[][] = []
+  let i = 0
+  while (i < exercises.length) {
+    const g = [i]
+    let last = i
+    while (exercises[last]?.supersetNext && last + 1 < exercises.length) {
+      g.push(last + 1)
+      last++
+    }
+    groups.push(g)
+    i = last + 1
+  }
+  return groups
+}
+
+/** Barbell and Smith-machine lifts get the plate calculator. */
+function usesBar(exercise: Exercise | undefined): boolean {
+  if (!exercise) return false
+  return exercise.equipment === 'barbell' || exercise.name.includes('Smith Machine')
+}
+
 export default function LogScreen({
   session,
   sessions,
@@ -50,6 +76,7 @@ export default function LogScreen({
   onFinish,
   onCancel,
   onGoToday,
+  onSetLogged,
 }: {
   session: WorkoutSession | null
   sessions: WorkoutSession[]
@@ -57,15 +84,17 @@ export default function LogScreen({
   onFinish: () => void
   onCancel: () => void
   onGoToday: () => void
+  /** fired when a set is confirmed, so the parent can auto-start the rest timer */
+  onSetLogged: (isCompound: boolean) => void
 }) {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [legendOpen, setLegendOpen] = useState(false)
   const [viewMode, setViewMode] = useState<'focus' | 'overview'>('focus')
-  const [[index, direction], setNav] = useState<[number, number]>([0, 0])
+  const [[groupIdx, direction], setNav] = useState<[number, number]>([0, 0])
   const [pr, setPr] = useState<{ id: number; value: number; name: string } | null>(null)
+  const [plateWeight, setPlateWeight] = useState<number | null>(null)
   const elapsed = useElapsed(session?.date ?? null)
 
-  // Historical bests (this session excluded — it isn't in `sessions` until finished).
   const historicalBests = useMemo(() => {
     const map = new Map<string, number>()
     for (const e of session?.exercises ?? []) {
@@ -74,8 +103,7 @@ export default function LogScreen({
     return map
   }, [sessions, session?.exercises])
 
-  const count = session?.exercises.length ?? 0
-  const safeIndex = Math.min(index, Math.max(0, count - 1))
+  const groups = useMemo(() => buildGroups(session?.exercises ?? []), [session?.exercises])
 
   if (!session) {
     return (
@@ -91,10 +119,23 @@ export default function LogScreen({
     )
   }
 
+  const count = session.exercises.length
+  const groupCount = groups.length
+  const safeGroup = Math.min(groupIdx, Math.max(0, groupCount - 1))
+  const currentGroup = groups[safeGroup] ?? []
+
   function go(dir: number) {
-    const next = safeIndex + dir
-    if (next < 0 || next >= count) return
+    const next = safeGroup + dir
+    if (next < 0 || next >= groupCount) return
     setNav([next, dir])
+  }
+
+  function focusExercise(exIndex: number) {
+    const gi = groups.findIndex((g) => g.includes(exIndex))
+    if (gi >= 0) {
+      setNav([gi, gi > safeGroup ? 1 : -1])
+      setViewMode('focus')
+    }
   }
 
   function mutate(fn: (draft: WorkoutSession) => void) {
@@ -127,7 +168,7 @@ export default function LogScreen({
   function cycleSetType(exIndex: number, setIndex: number) {
     mutate((d) => {
       const set = d.exercises[exIndex].sets[setIndex]
-      if (set.logged) return // locked rows don't change type
+      if (set.logged) return
       const current = set.type ?? 'R'
       const next = SET_TYPE_ORDER[(SET_TYPE_ORDER.indexOf(current) + 1) % SET_TYPE_ORDER.length]
       if (next === 'R') delete set.type
@@ -140,6 +181,7 @@ export default function LogScreen({
     const entry = session.exercises[exIndex]
     const set = entry.sets[setIndex]
     const turningOn = set.logged !== true
+    const exercise = getExerciseById(entry.exerciseId)
     let isPr = false
 
     if (turningOn && (set.type ?? 'R') !== 'W') {
@@ -151,19 +193,18 @@ export default function LogScreen({
           .map((s) => e1rm(s.weight, s.reps))
       )
       const est = e1rm(set.weight, set.reps)
-      // Only celebrate genuine improvements over an existing history —
-      // a first-ever session would otherwise "PR" on every set.
       if (historical > 0 && est > historical && est > sessionPrior) {
         isPr = true
-        const exercise = getExerciseById(entry.exerciseId)
         setPr({ id: Date.now(), value: Math.round(est), name: exercise?.name ?? '' })
         window.setTimeout(() => setPr((p) => (p && Date.now() - p.id >= 2100 ? null : p)), 2200)
       }
     }
 
-    // Haptics: distinct celebratory pattern for a PR, light pulse for a normal
-    // log. Guarded so it no-ops on iOS where the Vibration API is unavailable.
-    if (turningOn) vibrate(isPr ? [100, 50, 100, 50, 200] : 50)
+    if (turningOn) {
+      vibrate(isPr ? [100, 50, 100, 50, 200] : 50)
+      // Auto-start the rest timer keyed to the movement's mechanic.
+      onSetLogged(exercise?.type === 'compound')
+    }
 
     mutate((d) => {
       d.exercises[exIndex].sets[setIndex].logged = turningOn
@@ -187,9 +228,13 @@ export default function LogScreen({
   function removeExercise(exIndex: number) {
     if (!session) return
     const next = structuredClone(session)
+    // A removed exercise shouldn't leave a dangling superset link on its predecessor.
+    if (exIndex > 0 && next.exercises[exIndex - 1]?.supersetNext) {
+      delete next.exercises[exIndex - 1].supersetNext
+    }
     next.exercises.splice(exIndex, 1)
     onChange(next)
-    setNav([Math.max(0, Math.min(exIndex, next.exercises.length - 1)), -1])
+    setNav([Math.max(0, safeGroup - 1), -1])
   }
 
   function addExercise(exerciseId: string) {
@@ -204,7 +249,7 @@ export default function LogScreen({
     }
     onChange(next)
     setPickerOpen(false)
-    setNav([next.exercises.length - 1, 1])
+    setNav([9999, 1]) // clamps to the last group on re-render
     setViewMode('focus')
   }
 
@@ -228,14 +273,138 @@ export default function LogScreen({
     }
   }
 
-  const entry = session.exercises[safeIndex]
-  const exercise = entry ? getExerciseById(entry.exerciseId) : undefined
-  const insight = exercise ? coachInsight(exercise, sessions) : null
-  const trend = entry
-    ? strengthTrend(sessions, entry.exerciseId)
-        .slice(-8)
-        .map((p) => p.weight)
-    : []
+  function renderExerciseBody(exIndex: number, superset: boolean) {
+    const entry = session!.exercises[exIndex]
+    const exercise = getExerciseById(entry.exerciseId)
+    const insight = exercise ? coachInsight(exercise, sessions) : null
+    const trend = strengthTrend(sessions, entry.exerciseId)
+      .slice(-8)
+      .map((p) => p.weight)
+    const topWeight = Math.max(0, ...entry.sets.map((s) => s.weight))
+
+    return (
+      <div className="log__ex" key={`${entry.exerciseId}-${exIndex}`}>
+        <div className="log__hero">
+          <ExerciseImage exerciseId={entry.exerciseId} variant="hero" />
+          <div className="log__hero-shade" />
+          <div className="log__hero-text">
+            {superset && (
+              <span className="log__superset-tag">
+                <Link2 size={11} /> Superset
+              </span>
+            )}
+            <h3 className="log__exercise-name">{exercise?.name ?? entry.exerciseId}</h3>
+            {insight && (
+              <p className="log__goal">
+                <Target size={13} />
+                {insight.target ?? `Target ${exercise?.repRange[0]}–${exercise?.repRange[1]} reps`}
+              </p>
+            )}
+          </div>
+          {trend.length >= 2 && (
+            <div className="log__hero-spark">
+              <Sparkline values={trend} />
+            </div>
+          )}
+        </div>
+
+        <div className="log__toolbar">
+          <input
+            className="log__settings-note"
+            type="text"
+            value={entry.settingsNote ?? ''}
+            placeholder="Machine setup — e.g. Seat 4, Pin 12"
+            onChange={(e) => {
+              const raw = e.target.value
+              mutate((d) => {
+                if (raw === '') delete d.exercises[exIndex].settingsNote
+                else d.exercises[exIndex].settingsNote = raw
+              })
+            }}
+          />
+          {usesBar(exercise) && (
+            <button
+              className="log__plate-btn"
+              aria-label="Plate calculator"
+              onClick={() => setPlateWeight(topWeight >= 45 ? topWeight : 45)}
+            >
+              <Weight size={16} />
+            </button>
+          )}
+        </div>
+
+        <div className="log__sets">
+          <div className="log__set-labels">
+            <span>Type</span>
+            <span>lb</span>
+            <span>Reps</span>
+            <span title="Reps in Reserve">RIR</span>
+            <span>Log</span>
+            <span />
+          </div>
+          {entry.sets.map((set, setIndex) => {
+            const type = set.type ?? 'R'
+            const locked = set.logged === true
+            return (
+              <div key={setIndex} className={locked ? 'log__set log__set--locked' : 'log__set'}>
+                <button
+                  className={`st st--${type}`}
+                  aria-label={`Set type: ${SET_TYPE_INFO[type].label}`}
+                  onClick={() => cycleSetType(exIndex, setIndex)}
+                >
+                  {type}
+                </button>
+                <input
+                  className="log__input"
+                  type="text"
+                  inputMode="decimal"
+                  value={set.weight === 0 ? '' : String(set.weight)}
+                  placeholder="0"
+                  readOnly={locked}
+                  onChange={(e) => setValue(exIndex, setIndex, 'weight', e.target.value)}
+                />
+                <input
+                  className="log__input"
+                  type="text"
+                  inputMode="numeric"
+                  value={set.reps === 0 ? '' : String(set.reps)}
+                  placeholder="0"
+                  readOnly={locked}
+                  onChange={(e) => setValue(exIndex, setIndex, 'reps', e.target.value)}
+                />
+                <input
+                  className="log__input log__input--rir"
+                  type="text"
+                  inputMode="numeric"
+                  value={set.rir === undefined ? '' : String(set.rir)}
+                  placeholder="–"
+                  readOnly={locked}
+                  onChange={(e) => setRir(exIndex, setIndex, e.target.value)}
+                />
+                <button
+                  className={locked ? 'log__check log__check--on' : 'log__check'}
+                  aria-label={locked ? 'Unlock set' : 'Log set'}
+                  onClick={() => toggleLogged(exIndex, setIndex)}
+                >
+                  <Check size={15} />
+                </button>
+                <button className="log__remove-set" onClick={() => removeSet(exIndex, setIndex)}>
+                  ×
+                </button>
+              </div>
+            )
+          })}
+          <button className="log__add-set" onClick={() => addSet(exIndex)}>
+            <Plus size={13} /> Add set
+          </button>
+        </div>
+
+        <button className="log__remove-exercise" onClick={() => removeExercise(exIndex)}>
+          Remove exercise
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="log">
@@ -310,15 +479,12 @@ export default function LogScreen({
             const complete = done === e.sets.length && e.sets.length > 0
             return (
               <li key={`${e.exerciseId}-${i}`}>
-                <button
-                  className="log__overview-row"
-                  onClick={() => {
-                    setNav([i, i > safeIndex ? 1 : -1])
-                    setViewMode('focus')
-                  }}
-                >
+                <button className="log__overview-row" onClick={() => focusExercise(i)}>
                   <div className="log__overview-main">
-                    <span className="log__overview-name">{ex?.name ?? e.exerciseId}</span>
+                    <span className="log__overview-name">
+                      {ex?.name ?? e.exerciseId}
+                      {e.supersetNext && <Link2 size={12} className="log__overview-link" />}
+                    </span>
                     <span className="log__overview-muscle">{ex?.muscle}</span>
                   </div>
                   <span
@@ -338,13 +504,15 @@ export default function LogScreen({
         </ul>
       )}
 
-      {viewMode === 'focus' && count > 0 && entry && (
+      {viewMode === 'focus' && currentGroup.length > 0 && (
         <>
           <div className="log__deck">
             <AnimatePresence mode="popLayout" custom={direction} initial={false}>
               <motion.section
-                key={`${entry.exerciseId}-${safeIndex}`}
-                className="log__card card"
+                key={currentGroup.join('-')}
+                className={
+                  currentGroup.length > 1 ? 'log__card card log__card--superset' : 'log__card card'
+                }
                 custom={direction}
                 variants={slideVariants}
                 initial="enter"
@@ -359,115 +527,7 @@ export default function LogScreen({
                   else if (info.offset.x > 70) go(-1)
                 }}
               >
-                <div className="log__hero">
-                  <ExerciseImage exerciseId={entry.exerciseId} variant="hero" />
-                  <div className="log__hero-shade" />
-                  <div className="log__hero-text">
-                    <h3 className="log__exercise-name">{exercise?.name ?? entry.exerciseId}</h3>
-                    {insight && (
-                      <p className="log__goal">
-                        <Target size={13} />
-                        {insight.target ??
-                          `Target ${exercise?.repRange[0]}–${exercise?.repRange[1]} reps`}
-                      </p>
-                    )}
-                  </div>
-                  {trend.length >= 2 && (
-                    <div className="log__hero-spark">
-                      <Sparkline values={trend} />
-                    </div>
-                  )}
-                </div>
-
-                <input
-                  className="log__settings-note"
-                  type="text"
-                  value={entry.settingsNote ?? ''}
-                  placeholder="Machine setup — e.g. Seat 4, Pin 12"
-                  onChange={(e) => {
-                    const raw = e.target.value
-                    mutate((d) => {
-                      if (raw === '') delete d.exercises[safeIndex].settingsNote
-                      else d.exercises[safeIndex].settingsNote = raw
-                    })
-                  }}
-                />
-
-                <div className="log__sets">
-                  <div className="log__set-labels">
-                    <span>Type</span>
-                    <span>lb</span>
-                    <span>Reps</span>
-                    <span title="Reps in Reserve">RIR</span>
-                    <span>Log</span>
-                    <span />
-                  </div>
-                  {entry.sets.map((set, setIndex) => {
-                    const type = set.type ?? 'R'
-                    const locked = set.logged === true
-                    return (
-                      <div
-                        key={setIndex}
-                        className={locked ? 'log__set log__set--locked' : 'log__set'}
-                      >
-                        <button
-                          className={`st st--${type}`}
-                          aria-label={`Set type: ${SET_TYPE_INFO[type].label}`}
-                          onClick={() => cycleSetType(safeIndex, setIndex)}
-                        >
-                          {type}
-                        </button>
-                        <input
-                          className="log__input"
-                          type="text"
-                          inputMode="decimal"
-                          value={set.weight === 0 ? '' : String(set.weight)}
-                          placeholder="0"
-                          readOnly={locked}
-                          onChange={(e) => setValue(safeIndex, setIndex, 'weight', e.target.value)}
-                        />
-                        <input
-                          className="log__input"
-                          type="text"
-                          inputMode="numeric"
-                          value={set.reps === 0 ? '' : String(set.reps)}
-                          placeholder="0"
-                          readOnly={locked}
-                          onChange={(e) => setValue(safeIndex, setIndex, 'reps', e.target.value)}
-                        />
-                        <input
-                          className="log__input log__input--rir"
-                          type="text"
-                          inputMode="numeric"
-                          value={set.rir === undefined ? '' : String(set.rir)}
-                          placeholder="–"
-                          readOnly={locked}
-                          onChange={(e) => setRir(safeIndex, setIndex, e.target.value)}
-                        />
-                        <button
-                          className={locked ? 'log__check log__check--on' : 'log__check'}
-                          aria-label={locked ? 'Unlock set' : 'Log set'}
-                          onClick={() => toggleLogged(safeIndex, setIndex)}
-                        >
-                          <Check size={15} />
-                        </button>
-                        <button
-                          className="log__remove-set"
-                          onClick={() => removeSet(safeIndex, setIndex)}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    )
-                  })}
-                  <button className="log__add-set" onClick={() => addSet(safeIndex)}>
-                    <Plus size={13} /> Add set
-                  </button>
-                </div>
-
-                <button className="log__remove-exercise" onClick={() => removeExercise(safeIndex)}>
-                  Remove exercise
-                </button>
+                {currentGroup.map((exIndex) => renderExerciseBody(exIndex, currentGroup.length > 1))}
               </motion.section>
             </AnimatePresence>
           </div>
@@ -475,25 +535,25 @@ export default function LogScreen({
           <div className="log__nav">
             <button
               className="log__nav-btn"
-              disabled={safeIndex === 0}
+              disabled={safeGroup === 0}
               aria-label="Previous exercise"
               onClick={() => go(-1)}
             >
               <ChevronLeft size={20} />
             </button>
             <div className="log__dots">
-              {session.exercises.map((_, i) => (
+              {groups.map((_, i) => (
                 <button
                   key={i}
-                  aria-label={`Exercise ${i + 1}`}
-                  className={i === safeIndex ? 'log__dot log__dot--on' : 'log__dot'}
-                  onClick={() => setNav([i, i > safeIndex ? 1 : -1])}
+                  aria-label={`Card ${i + 1}`}
+                  className={i === safeGroup ? 'log__dot log__dot--on' : 'log__dot'}
+                  onClick={() => setNav([i, i > safeGroup ? 1 : -1])}
                 />
               ))}
             </div>
             <button
               className="log__nav-btn"
-              disabled={safeIndex === count - 1}
+              disabled={safeGroup === groupCount - 1}
               aria-label="Next exercise"
               onClick={() => go(1)}
             >
@@ -519,6 +579,10 @@ export default function LogScreen({
           onSelect={addExercise}
           onClose={() => setPickerOpen(false)}
         />
+      )}
+
+      {plateWeight !== null && (
+        <PlateCalculator weight={plateWeight} onClose={() => setPlateWeight(null)} />
       )}
 
       <AnimatePresence>

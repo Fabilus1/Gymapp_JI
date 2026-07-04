@@ -13,7 +13,12 @@ import RecoveryScreen from './screens/RecoveryScreen'
 import SettingsScreen from './screens/SettingsScreen'
 import { useAppData } from './hooks/useAppData'
 import { useRestTimer } from './hooks/useRestTimer'
+import { useWakeLock } from './hooks/useWakeLock'
 import './App.css'
+
+// Default rest by movement mechanic (spec: 2.5 min compound / 60 s isolation).
+const REST_COMPOUND = 150
+const REST_ISOLATION = 60
 
 const TAB_TITLES: Record<TabId, string> = {
   today: 'Today',
@@ -29,6 +34,9 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const data = useAppData()
   const restTimer = useRestTimer()
+
+  // Keep the screen awake while a workout is in progress.
+  useWakeLock(data.activeSession !== null)
 
   // The static HTML splash is replaced by the animated React one on mount;
   // the React splash stays up ≥1.5s, then fades into the app.
@@ -92,6 +100,9 @@ export default function App() {
                   setTab('today')
                 }}
                 onGoToday={() => setTab('today')}
+                onSetLogged={(isCompound) =>
+                  restTimer.start(isCompound ? REST_COMPOUND : REST_ISOLATION)
+                }
               />
             )}
             {tab === 'plan' && (

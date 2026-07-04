@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Trash2, Check, ChevronUp, ChevronDown, Minus } from 'lucide-react'
+import { Plus, Trash2, Check, ChevronUp, ChevronDown, Minus, Link2 } from 'lucide-react'
 import ExercisePicker from '../components/ExercisePicker'
 import Dropdown from '../components/Dropdown'
 import { SPLITS } from '../data/splits'
@@ -104,6 +104,7 @@ export default function PlannerScreen({
       const merged: ExerciseMeta = { ...current, ...patch }
       if (merged.targetSets === undefined) delete merged.targetSets
       if (merged.repRange === undefined) delete merged.repRange
+      if (!merged.supersetNext) delete merged.supersetNext
       const exerciseMeta = { ...d.exerciseMeta, [exerciseId]: merged }
       if (Object.keys(merged).length === 0) delete exerciseMeta[exerciseId]
       return { ...d, exerciseMeta }
@@ -257,6 +258,21 @@ export default function PlannerScreen({
                         <span className="planner__range-label">reps</span>
                       </div>
                     </div>
+                    {i < day.exerciseIds.length - 1 && (
+                      <button
+                        className={
+                          meta?.supersetNext
+                            ? 'planner__superset planner__superset--on'
+                            : 'planner__superset'
+                        }
+                        onClick={() =>
+                          patchMeta(dayIndex, id, { supersetNext: !meta?.supersetNext })
+                        }
+                      >
+                        <Link2 size={13} />
+                        {meta?.supersetNext ? 'Supersetted with next' : 'Superset with next'}
+                      </button>
+                    )}
                   </li>
                 )
               })}

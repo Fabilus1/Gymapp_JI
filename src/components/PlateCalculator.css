@@ -1,0 +1,124 @@
+.plate {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-end;
+  z-index: 40;
+}
+
+.plate__sheet {
+  background: var(--bg-card);
+  border-top: 1px solid var(--hairline-strong);
+  border-radius: 18px 18px 0 0;
+  width: 100%;
+  padding: 20px 20px calc(env(safe-area-inset-bottom) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.plate__bar-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.plate__title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.plate__sub {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.plate__close {
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 2px;
+}
+
+.plate__note {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+
+/* visual: half the bar with discs stacked outward */
+.plate__viz {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 72px;
+  padding: 8px 0;
+  overflow-x: auto;
+}
+
+.plate__bar {
+  width: 40px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #3f3f46, #71717a);
+  flex-shrink: 0;
+}
+
+.plate__disc {
+  flex-shrink: 0;
+  width: 15px;
+  min-height: 44px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-variant-numeric: tabular-nums;
+}
+
+.plate__collar {
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: #52525b;
+  flex-shrink: 0;
+}
+
+.plate__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.plate__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.plate__swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.plate__plate-lb {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 52px;
+}
+
+.plate__count {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
