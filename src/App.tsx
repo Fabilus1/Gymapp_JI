@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import Header from './components/Header'
 import Splash from './components/Splash'
@@ -47,6 +47,21 @@ export default function App() {
     return () => window.clearTimeout(t)
   }, [])
 
+  // Collapsible bottom nav: hide on scroll-down, reveal on scroll-up.
+  const [navHidden, setNavHidden] = useState(false)
+  const lastScrollY = useRef(0)
+  function handleScroll(e: React.UIEvent<HTMLElement>) {
+    const y = e.currentTarget.scrollTop
+    if (y > lastScrollY.current + 6 && y > 48) setNavHidden(true)
+    else if (y < lastScrollY.current - 6) setNavHidden(false)
+    lastScrollY.current = y
+  }
+  // Reset when the screen changes (it remounts scrolled to top).
+  useEffect(() => {
+    setNavHidden(false)
+    lastScrollY.current = 0
+  }, [tab, settingsOpen])
+
   const showSplash = splashHolding || !data.loaded || !data.settings
 
   if (!data.loaded || !data.settings) {
@@ -65,7 +80,7 @@ export default function App() {
         onSettingsClick={settingsOpen ? undefined : () => setSettingsOpen(true)}
         onBack={settingsOpen ? () => setSettingsOpen(false) : undefined}
       />
-      <main className="screen" key={settingsOpen ? 'settings' : tab}>
+      <main className="screen" key={settingsOpen ? 'settings' : tab} onScroll={handleScroll}>
         {settingsOpen ? (
           <SettingsScreen />
         ) : (
@@ -125,7 +140,7 @@ export default function App() {
           showPresets={tab === 'log' && data.activeSession !== null}
         />
       )}
-      {!settingsOpen && <BottomNav active={tab} onChange={setTab} />}
+      {!settingsOpen && <BottomNav active={tab} onChange={setTab} hidden={navHidden} />}
       <AnimatePresence>{showSplash && <Splash key="splash" />}</AnimatePresence>
     </>
   )

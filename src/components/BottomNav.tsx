@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import {
   BookOpen,
   CalendarRange,
@@ -23,12 +24,23 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
 export default function BottomNav({
   active,
   onChange,
+  hidden = false,
 }: {
   active: TabId
   onChange: (tab: TabId) => void
+  hidden?: boolean
 }) {
   return (
-    <nav className="bottom-nav">
+    <motion.nav
+      className="bottom-nav"
+      // slide fully off-screen (incl. safe-area) on scroll-down; snap back up
+      animate={{ y: hidden ? '130%' : 0 }}
+      transition={
+        hidden
+          ? { type: 'tween', duration: 0.25, ease: 'easeInOut' }
+          : { type: 'spring', stiffness: 500, damping: 40 }
+      }
+    >
       {TABS.map((tab) => {
         const Icon = tab.icon
         return (
@@ -44,6 +56,6 @@ export default function BottomNav({
           </button>
         )
       })}
-    </nav>
+    </motion.nav>
   )
 }

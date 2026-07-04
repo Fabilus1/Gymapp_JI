@@ -15,8 +15,7 @@ export function matchesQuery(name: string, query: string): boolean {
 export function searchExercises(exercises: Exercise[], query: string): Exercise[] {
   const tokens = query.toLowerCase().split(/\s+/).filter(Boolean)
   if (tokens.length === 0) return exercises
-  return exercises.filter((e) => {
-    const haystack = e.name.toLowerCase()
-    return tokens.every((t) => haystack.includes(t))
-  })
+  // Match on the display name; single-token queries like "bayesian" match
+  // "Cable Bayesian Curl" the same way multi-token "cable curl" does.
+  return exercises.filter((e) => matchesQuery(e.name, query))
 }

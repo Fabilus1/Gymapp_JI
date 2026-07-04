@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { Plus, Trash2, Check, ChevronUp, ChevronDown, Minus, Link2 } from 'lucide-react'
+import { Reorder } from 'framer-motion'
+import { Plus, Trash2, Check } from 'lucide-react'
 import ExercisePicker from '../components/ExercisePicker'
 import Dropdown from '../components/Dropdown'
+import PlannerExerciseRow from './PlannerExerciseRow'
 import { SPLITS } from '../data/splits'
 import { getExerciseById } from '../data/exercises'
 import { newId } from '../db/db'
@@ -88,16 +90,6 @@ export default function PlannerScreen({
     setEditingPlan({ ...editingPlan, days })
   }
 
-  function moveExercise(dayIndex: number, i: number, dir: -1 | 1) {
-    updateDay(dayIndex, (d) => {
-      const j = i + dir
-      if (j < 0 || j >= d.exerciseIds.length) return d
-      const ids = [...d.exerciseIds]
-      ;[ids[i], ids[j]] = [ids[j], ids[i]]
-      return { ...d, exerciseIds: ids }
-    })
-  }
-
   function patchMeta(dayIndex: number, exerciseId: string, patch: Partial<ExerciseMeta>) {
     updateDay(dayIndex, (d) => {
       const current = d.exerciseMeta?.[exerciseId] ?? {}
@@ -163,120 +155,34 @@ export default function PlannerScreen({
               </button>
             </div>
 
-            <ul className="planner__exercises">
-              {day.exerciseIds.map((id, i) => {
-                const exercise = getExerciseById(id)
-                const meta = day.exerciseMeta?.[id]
-                const sets = meta?.targetSets ?? 3
-                const range = meta?.repRange
-                return (
-                  <li key={`${id}-${i}`} className="planner__exercise">
-                    <div className="planner__exercise-top">
-                      <div className="planner__reorder">
-                        <button
-                          className="planner__chev"
-                          aria-label="Move up"
-                          disabled={i === 0}
-                          onClick={() => moveExercise(dayIndex, i, -1)}
-                        >
-                          <ChevronUp size={14} />
-                        </button>
-                        <button
-                          className="planner__chev"
-                          aria-label="Move down"
-                          disabled={i === day.exerciseIds.length - 1}
-                          onClick={() => moveExercise(dayIndex, i, 1)}
-                        >
-                          <ChevronDown size={14} />
-                        </button>
-                      </div>
-                      <span className="planner__exercise-name">{exercise?.name ?? id}</span>
-                      <button
-                        className="planner__icon-btn"
-                        aria-label="Remove exercise"
-                        onClick={() =>
-                          updateDay(dayIndex, (d) => {
-                            const exerciseMeta = { ...d.exerciseMeta }
-                            delete exerciseMeta[id]
-                            return {
-                              ...d,
-                              exerciseIds: d.exerciseIds.filter((_, j) => j !== i),
-                              exerciseMeta,
-                            }
-                          })
-                        }
-                      >
-                        ×
-                      </button>
-                    </div>
-                    <div className="planner__exercise-config">
-                      <div className="planner__stepper">
-                        <button
-                          className="planner__step"
-                          aria-label="Fewer sets"
-                          disabled={sets <= 1}
-                          onClick={() =>
-                            patchMeta(dayIndex, id, {
-                              targetSets: sets - 1 === 3 ? undefined : sets - 1,
-                            })
-                          }
-                        >
-                          <Minus size={12} />
-                        </button>
-                        <span className="planner__step-value">{sets} sets</span>
-                        <button
-                          className="planner__step"
-                          aria-label="More sets"
-                          disabled={sets >= 10}
-                          onClick={() =>
-                            patchMeta(dayIndex, id, {
-                              targetSets: sets + 1 === 3 ? undefined : sets + 1,
-                            })
-                          }
-                        >
-                          <Plus size={12} />
-                        </button>
-                      </div>
-                      <div className="planner__range">
-                        <input
-                          className="planner__range-input"
-                          type="text"
-                          inputMode="numeric"
-                          value={range ? String(range[0]) : ''}
-                          placeholder={String(exercise?.repRange[0] ?? 8)}
-                          onChange={(e) => setRepRange(dayIndex, id, 0, e.target.value)}
-                        />
-                        <span className="planner__range-sep">–</span>
-                        <input
-                          className="planner__range-input"
-                          type="text"
-                          inputMode="numeric"
-                          value={range ? String(range[1]) : ''}
-                          placeholder={String(exercise?.repRange[1] ?? 12)}
-                          onChange={(e) => setRepRange(dayIndex, id, 1, e.target.value)}
-                        />
-                        <span className="planner__range-label">reps</span>
-                      </div>
-                    </div>
-                    {i < day.exerciseIds.length - 1 && (
-                      <button
-                        className={
-                          meta?.supersetNext
-                            ? 'planner__superset planner__superset--on'
-                            : 'planner__superset'
-                        }
-                        onClick={() =>
-                          patchMeta(dayIndex, id, { supersetNext: !meta?.supersetNext })
-                        }
-                      >
-                        <Link2 size={13} />
-                        {meta?.supersetNext ? 'Supersetted with next' : 'Superset with next'}
-                      </button>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
+            <Reorder.Group
+              axis="y"
+              values={day.exerciseIds}
+              onReorder={(ids) => updateDay(dayIndex, (d) => ({ ...d, exerciseIds: ids }))}
+              className="planner__exercises"
+            >
+              {day.exerciseIds.map((id, i) => (
+                <PlannerExerciseRow
+                  key={id}
+                  id={id}
+                  isLast={i === day.exerciseIds.length - 1}
+                  meta={day.exerciseMeta?.[id]}
+                  onPatchMeta={(patch) => patchMeta(dayIndex, id, patch)}
+                  onSetRepRange={(which, raw) => setRepRange(dayIndex, id, which, raw)}
+                  onRemove={() =>
+                    updateDay(dayIndex, (d) => {
+                      const exerciseMeta = { ...d.exerciseMeta }
+                      delete exerciseMeta[id]
+                      return {
+                        ...d,
+                        exerciseIds: d.exerciseIds.filter((x) => x !== id),
+                        exerciseMeta,
+                      }
+                    })
+                  }
+                />
+              ))}
+            </Reorder.Group>
 
             <button className="planner__add" onClick={() => setPickerForDay(dayIndex)}>
               <Plus size={14} /> Add exercise

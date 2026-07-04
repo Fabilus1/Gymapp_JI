@@ -31,19 +31,35 @@ function chunk(type, data) {
   return Buffer.concat([len, typeBuf, data, crcBuf])
 }
 
-// draws a filled circle (the "plate" mark) of given radius fraction, centered
-function makePng(size, { circleFraction, padding = 0 }) {
+// Dumbbell mark (matches the in-app splash), drawn in normalized coords and
+// scaled to `size`. `scale` shrinks the mark for maskable safe zones.
+// A pixel is "on" if it falls inside the handle bar or any of the 4 plates.
+const BARS = [
+  // [x0, x1, y0, y1] in 0..1, symmetric around center
+  [0.30, 0.70, 0.455, 0.545], // handle
+  [0.235, 0.315, 0.35, 0.65], // inner plate (left)
+  [0.685, 0.765, 0.35, 0.65], // inner plate (right)
+  [0.16, 0.235, 0.40, 0.60], // outer plate (left)
+  [0.765, 0.84, 0.40, 0.60], // outer plate (right)
+]
+
+function insideDumbbell(nx, ny) {
+  for (const [x0, x1, y0, y1] of BARS) {
+    if (nx >= x0 && nx <= x1 && ny >= y0 && ny <= y1) return true
+  }
+  return false
+}
+
+function makePng(size, { scale = 1 }) {
   const px = new Uint8Array(size * size * 4)
-  const cx = size / 2
-  const cy = size / 2
-  const r = (size / 2 - padding) * circleFraction
+  const center = 0.5
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const dx = x - cx + 0.5
-      const dy = y - cy + 0.5
-      const dist = Math.sqrt(dx * dx + dy * dy)
+      // normalize to 0..1, then map through the scale around the center
+      const nx = center + (((x + 0.5) / size) - center) / scale
+      const ny = center + (((y + 0.5) / size) - center) / scale
+      const color = insideDumbbell(nx, ny) ? ACCENT : BG
       const i = (y * size + x) * 4
-      const color = dist <= r ? ACCENT : BG
       px[i] = color[0]
       px[i + 1] = color[1]
       px[i + 2] = color[2]
@@ -77,10 +93,12 @@ function makePng(size, { circleFraction, padding = 0 }) {
 mkdirSync('public/icons', { recursive: true })
 
 const targets = [
-  { file: 'icon-192.png', size: 192, circleFraction: 0.62, padding: 0 },
-  { file: 'icon-512.png', size: 512, circleFraction: 0.62, padding: 0 },
-  { file: 'icon-512-maskable.png', size: 512, circleFraction: 0.5, padding: 60 },
-  { file: 'apple-touch-icon.png', size: 180, circleFraction: 0.62, padding: 0 },
+  { file: 'icon-192.png', size: 192, scale: 1 },
+  { file: 'icon-512.png', size: 512, scale: 1 },
+  { file: 'icon-1024.png', size: 1024, scale: 1 },
+  // maskable: shrink into the safe zone so the mark isn't clipped by icon masks
+  { file: 'icon-512-maskable.png', size: 512, scale: 0.66 },
+  { file: 'apple-touch-icon.png', size: 180, scale: 1 },
 ]
 
 for (const t of targets) {

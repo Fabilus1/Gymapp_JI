@@ -118,22 +118,24 @@
   gap: 8px;
 }
 
-.planner__reorder {
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.planner__chev {
+.planner__grip {
   display: inline-flex;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 1px 4px;
+  align-items: center;
+  color: var(--text-tertiary);
+  cursor: grab;
+  padding: 2px;
+  flex-shrink: 0;
+  touch-action: none;
 }
 
-.planner__chev:disabled {
-  opacity: 0.25;
-  cursor: default;
+.planner__grip:active {
+  cursor: grabbing;
+  color: var(--text-secondary);
+}
+
+/* Reorder.Item is a motion <li> — kill the default list marker */
+.planner__exercise {
+  list-style: none;
 }
 
 .planner__exercise-config {
