@@ -4,7 +4,7 @@ import ExercisePicker from '../components/ExercisePicker'
 import WorkoutCalendar from '../components/WorkoutCalendar'
 import { weeklyVolume } from '../logic/volume'
 import { addBodyWeightEntry, getAllBodyWeightEntries, newId } from '../db/db'
-import { getExerciseById, EXERCISES } from '../data/exercises'
+import { getExerciseById, ALL_EXERCISES } from '../data/exercises'
 import { strengthTrend } from '../logic/progression'
 import type { BodyWeightEntry, WorkoutSession } from '../types'
 import './ProgressScreen.css'
@@ -26,7 +26,7 @@ export default function ProgressScreen({ sessions }: { sessions: WorkoutSession[
 
   useEffect(() => {
     if (exerciseId !== null || sessions.length === 0) return
-    for (const e of EXERCISES) {
+    for (const e of ALL_EXERCISES) {
       if (strengthTrend(sessions, e.id).length > 0) {
         setExerciseId(e.id)
         return

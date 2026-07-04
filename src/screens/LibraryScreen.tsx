@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { EXERCISES } from '../data/exercises'
+import { ALL_EXERCISES } from '../data/exercises'
 import { EXERCISE_IMAGES } from '../data/exerciseImages'
 import { getMuscleTarget } from '../data/muscleDetail'
 import { findLastPerformance } from '../logic/progression'
@@ -34,7 +34,7 @@ export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[]
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Exercise | null>(null)
 
-  const results = EXERCISES.filter(
+  const results = ALL_EXERCISES.filter(
     (e) =>
       (muscle === null || e.muscle === muscle) &&
       (query === '' || e.name.toLowerCase().includes(query.toLowerCase()))
@@ -45,7 +45,7 @@ export default function LibraryScreen({ sessions }: { sessions: WorkoutSession[]
       <input
         className="library__search"
         type="text"
-        placeholder={`Search ${EXERCISES.length} exercises`}
+        placeholder={`Search ${ALL_EXERCISES.length} exercises`}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />

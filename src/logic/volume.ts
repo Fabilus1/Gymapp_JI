@@ -18,8 +18,9 @@ export function weeklyVolume(sessions: WorkoutSession[], now: Date = new Date())
     for (const entry of session.exercises) {
       const exercise = getExerciseById(entry.exerciseId)
       if (!exercise) continue
-      const tonnage = entry.sets.reduce((sum, s) => sum + s.weight * s.reps, 0)
-      const worked = entry.sets.filter((s) => s.reps > 0).length
+      const counted = entry.sets.filter((s) => s.type !== 'W')
+      const tonnage = counted.reduce((sum, s) => sum + s.weight * s.reps, 0)
+      const worked = counted.filter((s) => s.reps > 0).length
       const current = totals.get(exercise.muscle) ?? { tonnage: 0, sets: 0 }
       current.tonnage += tonnage
       current.sets += worked

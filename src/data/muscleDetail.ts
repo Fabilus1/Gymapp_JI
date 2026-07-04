@@ -279,6 +279,13 @@ export const MUSCLE_DETAIL: Record<string, MuscleTarget> = {
   'katana-extension': { primary: ['triceps'], secondary: [] },
 }
 
+import { EXTRA_MUSCLE_DETAIL } from './exercisesExtra'
+
+const ALL_MUSCLE_DETAIL: Record<string, MuscleTarget> = {
+  ...MUSCLE_DETAIL,
+  ...EXTRA_MUSCLE_DETAIL,
+}
+
 export function getMuscleTarget(exerciseId: string): MuscleTarget | undefined {
-  return MUSCLE_DETAIL[exerciseId]
+  return ALL_MUSCLE_DETAIL[exerciseId]
 }

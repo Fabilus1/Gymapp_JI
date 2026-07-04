@@ -70,13 +70,15 @@ export function useAppData() {
       dayName: day.name,
       exercises: day.exerciseIds.map((exerciseId) => {
         const exercise = getExerciseById(exerciseId)
-        const suggestion = exercise ? suggestNext(exercise, sessions) : null
+        const meta = day.exerciseMeta?.[exerciseId]
+        const suggestion = exercise ? suggestNext(exercise, sessions, meta?.repRange) : null
         const hasHistory = suggestion !== null && suggestion.weight !== null
         const weight = hasHistory ? (suggestion.weight as number) : 0
         const reps = hasHistory ? suggestion.reps : 0
+        const setCount = meta?.targetSets ?? DEFAULT_SET_COUNT
         return {
           exerciseId,
-          sets: Array.from({ length: DEFAULT_SET_COUNT }, () => ({ weight, reps })),
+          sets: Array.from({ length: setCount }, () => ({ weight, reps })),
           settingsNote: recallSettingsNote(sessions, exerciseId),
         }
       }),
@@ -95,8 +97,9 @@ export function useAppData() {
     const cleaned: WorkoutSession = {
       ...activeSession,
       endedAt: new Date().toISOString(),
+      // Only explicitly logged sets count — unconfirmed rows are discarded.
       exercises: activeSession.exercises
-        .map((e) => ({ ...e, sets: e.sets.filter((s) => s.weight > 0 || s.reps > 0) }))
+        .map((e) => ({ ...e, sets: e.sets.filter((s) => s.logged === true) }))
         .filter((e) => e.sets.length > 0),
     }
     if (cleaned.exercises.length > 0) {

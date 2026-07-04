@@ -105,16 +105,112 @@
 
 .planner__exercise {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  padding: 8px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--hairline);
   font-size: 14px;
 }
 
-.planner__grip {
-  color: var(--text-tertiary);
+.planner__exercise-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.planner__reorder {
+  display: flex;
+  flex-direction: column;
   flex-shrink: 0;
+}
+
+.planner__chev {
+  display: inline-flex;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 1px 4px;
+}
+
+.planner__chev:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.planner__exercise-config {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-left: 30px;
+}
+
+.planner__stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.planner__step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.planner__step:active {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.planner__step:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.planner__step-value {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+  text-align: center;
+}
+
+.planner__range {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.planner__range-input {
+  width: 34px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--hairline-strong);
+  color: var(--text);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  padding: 4px 2px;
+  text-align: center;
+}
+
+.planner__range-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.planner__range-input:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.planner__range-sep,
+.planner__range-label {
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .planner__exercise-name {

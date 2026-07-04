@@ -85,7 +85,7 @@ export default function TodayScreen({
 
       <ul className="today__list">
         {exercises.map((exercise) => {
-          const s = suggestNext(exercise, sessions)
+          const s = suggestNext(exercise, sessions, day?.exerciseMeta?.[exercise.id]?.repRange)
           const insight = coachInsight(exercise, sessions)
           return (
             <li key={exercise.id} className="today__row">

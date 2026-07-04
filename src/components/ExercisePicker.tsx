@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { EXERCISES } from '../data/exercises'
+import { ALL_EXERCISES } from '../data/exercises'
 import './ExercisePicker.css'
 
 export default function ExercisePicker({
@@ -13,7 +13,7 @@ export default function ExercisePicker({
 }) {
   const [query, setQuery] = useState('')
 
-  const results = EXERCISES.filter(
+  const results = ALL_EXERCISES.filter(
     (e) =>
       !excludeIds.includes(e.id) &&
       (query === '' || e.name.toLowerCase().includes(query.toLowerCase()))

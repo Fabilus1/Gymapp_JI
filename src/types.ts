@@ -29,11 +29,18 @@ export interface Exercise {
   cue: string
 }
 
+/** Intensity tag per set: warmup / regular / failure / partials / myo-reps. */
+export type SetType = 'W' | 'R' | 'F' | 'P' | 'M'
+
 export interface SetEntry {
   weight: number
   reps: number
   /** Reps in Reserve — proximity to failure (0 = to failure). Optional. */
   rir?: number
+  /** Intensity tag; undefined = regular. Warmups are excluded from analytics. */
+  type?: SetType
+  /** Explicitly confirmed via the Log button; unlogged sets are dropped on finish. */
+  logged?: boolean
 }
 
 export interface SessionExercise {
@@ -88,10 +95,20 @@ export interface CustomPlan {
   days: SplitDay[]
 }
 
+/** Per-exercise template overrides set in the Planner's day editor. */
+export interface ExerciseMeta {
+  /** prefilled set count for new sessions (default 3) */
+  targetSets?: number
+  /** overrides the exercise's default hypertrophy rep range */
+  repRange?: [number, number]
+}
+
 /** A day within a split template, e.g. "Full Body A" */
 export interface SplitDay {
   name: string
   exerciseIds: string[]
+  /** keyed by exerciseId; only present on custom plans edited in the Planner */
+  exerciseMeta?: Record<string, ExerciseMeta>
 }
 
 export interface Split {

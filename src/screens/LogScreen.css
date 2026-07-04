@@ -119,9 +119,218 @@
 .log__set-labels,
 .log__set {
   display: grid;
-  grid-template-columns: 26px 1fr 1fr 48px 30px;
-  gap: 8px;
+  grid-template-columns: 30px 1fr 1fr 42px 34px 22px;
+  gap: 7px;
   align-items: center;
+}
+
+.log__set--locked .log__input {
+  opacity: 0.55;
+}
+
+.log__set--locked .st {
+  opacity: 0.7;
+}
+
+/* set-type badge */
+.st {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--hairline-strong);
+  color: var(--text-secondary);
+  background: transparent;
+  transition: transform 0.1s ease;
+}
+
+.st:active {
+  transform: scale(0.9);
+}
+
+.st--W {
+  color: #eab308;
+  border-color: rgba(234, 179, 8, 0.45);
+  background: rgba(234, 179, 8, 0.09);
+}
+
+.st--F {
+  color: var(--danger);
+  border-color: rgba(244, 63, 94, 0.45);
+  background: rgba(244, 63, 94, 0.09);
+}
+
+.st--P {
+  color: #f97316;
+  border-color: rgba(249, 115, 22, 0.45);
+  background: rgba(249, 115, 22, 0.09);
+}
+
+.st--M {
+  color: #a855f7;
+  border-color: rgba(168, 85, 247, 0.45);
+  background: rgba(168, 85, 247, 0.09);
+}
+
+.st--check {
+  color: var(--accent);
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.09);
+  cursor: default;
+}
+
+/* log checkmark */
+.log__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1.5px solid var(--hairline-strong);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.log__check--on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0 10px -2px var(--accent-glow);
+}
+
+.log__check:active {
+  transform: scale(0.88);
+}
+
+/* header actions + legend */
+.log__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.log__legend-btn {
+  display: inline-flex;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.log__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  background: var(--bg-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.log__legend-row {
+  display: grid;
+  grid-template-columns: 26px 74px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.log__legend-label {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.log__legend-hint {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+/* focus/overview switch */
+.log__viewswitch {
+  display: inline-flex;
+  align-self: flex-start;
+  background: var(--bg-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.log__view {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.log__view--on {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+
+/* overview list */
+.log__overview {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.log__overview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 13px 2px;
+  border-bottom: 1px solid var(--hairline);
+  cursor: pointer;
+}
+
+.log__overview-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.log__overview-name {
+  font-size: 14.5px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.log__overview-muscle {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  text-transform: capitalize;
+}
+
+.log__overview-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.log__overview-progress--done {
+  color: var(--accent);
 }
 
 .log__input--rir {

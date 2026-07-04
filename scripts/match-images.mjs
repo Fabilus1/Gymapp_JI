@@ -245,7 +245,9 @@ for (const ex of dataset) {
 }
 const byExact = new Map(dataset.map((ex) => [ex.name, ex]))
 
-const ours = readFileSync('src/data/exercises.ts', 'utf8')
+const ours =
+  readFileSync('src/data/exercises.ts', 'utf8') +
+  readFileSync('src/data/exercisesExtra.ts', 'utf8')
 const entries = [...ours.matchAll(/id: '([a-z0-9-]+)', name: (?:'((?:[^'\\]|\\')*)'|"([^"]*)")/g)].map(
   (m) => ({
     id: m[1],
