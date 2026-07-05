@@ -97,7 +97,7 @@ export interface RecoveryEntry {
   soreness: Soreness
 }
 
-export type SplitId = 'full-body' | 'upper-lower' | 'push-pull-legs'
+export type SplitId = 'full-body' | 'upper-lower' | 'push-pull-legs' | 'jacques-fb3x'
 
 export interface Settings {
   /** id of a built-in split or a custom plan */

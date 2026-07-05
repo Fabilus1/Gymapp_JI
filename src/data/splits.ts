@@ -136,6 +136,71 @@ export const SPLITS: Split[] = [
       },
     ],
   },
+  {
+    // Jacques' machine/cable-focused full-body rotation. 3 sets/exercise
+    // (1 warmup + 2 to failure); the tricep moves carry explicit set counts.
+    id: 'jacques-fb3x',
+    name: 'Jacques FB3x',
+    days: [
+      {
+        name: 'Full Body A',
+        exerciseIds: [
+          'x-smith-machine-stiff-leg-deadlift',
+          'x-t-bar-row',
+          'x-machine-leg-extension',
+          'x-cable-one-arm-tricep-extension',
+          'x-cable-one-arm-tricep-pushdown',
+          'x-cable-bicep-curl',
+          'x-cable-lateral-raise',
+          'standing-calf-raise-machine',
+          'x-machine-ab-crunch',
+        ],
+        exerciseMeta: {
+          'x-cable-one-arm-tricep-extension': { targetSets: 3 },
+          'x-cable-one-arm-tricep-pushdown': { targetSets: 1 },
+        },
+      },
+      {
+        name: 'Full Body B',
+        exerciseIds: [
+          'x-machine-incline-chest-press',
+          'x-machine-seated-row',
+          'x-machine-leg-extension',
+          'x-machine-seated-leg-curl',
+          'x-machine-hip-adduction',
+          'x-cable-one-arm-tricep-pushdown',
+          'x-cable-one-arm-tricep-extension',
+          'x-cable-bayesian-curl',
+          'reverse-pec-deck',
+          'standing-calf-raise-machine',
+          'x-machine-ab-crunch',
+        ],
+        exerciseMeta: {
+          'x-cable-one-arm-tricep-pushdown': { targetSets: 3 },
+          'x-cable-one-arm-tricep-extension': { targetSets: 1 },
+        },
+      },
+      {
+        name: 'Full Body C',
+        exerciseIds: [
+          'x-smith-machine-stiff-leg-deadlift',
+          'lat-pulldown',
+          'x-machine-leg-extension',
+          'x-machine-seated-leg-curl',
+          'x-cable-one-arm-tricep-extension',
+          'x-cable-one-arm-tricep-pushdown',
+          'x-cable-bayesian-curl',
+          'x-cable-lateral-raise',
+          'standing-calf-raise-machine',
+          'x-machine-ab-crunch',
+        ],
+        exerciseMeta: {
+          'x-cable-one-arm-tricep-extension': { targetSets: 3 },
+          'x-cable-one-arm-tricep-pushdown': { targetSets: 1 },
+        },
+      },
+    ],
+  },
 ]
 
 export function getSplitById(id: string) {
