@@ -28,56 +28,27 @@
   background: var(--accent);
 }
 
-/* preserveAspectRatio="meet" guarantees the header + side labels never crop */
-.mm__svg {
+/* constrains the package SVG so it scales cleanly on mobile */
+.mm__model {
   width: 100%;
-  height: min(66vh, 440px);
-  display: block;
+  max-width: 260px;
 }
 
-.mm__stria {
-  fill: none;
-  stroke: rgba(0, 0, 0, 0.4);
-  stroke-width: 1;
-  pointer-events: none;
+.mm__legend {
+  display: flex;
+  gap: 20px;
 }
 
-.mm__header {
-  fill: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  opacity: 0.85;
+.mm__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
-.mm__labels {
-  pointer-events: none;
-}
-
-.mm__leader {
-  stroke: rgba(255, 255, 255, 0.16);
-  stroke-width: 1;
-}
-
-.mm__leader-dot {
-  fill: rgba(255, 255, 255, 0.3);
-}
-
-.mm__label {
-  fill: var(--text-tertiary);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.mm__legend-g {
-  pointer-events: none;
-}
-
-.mm__legend-t {
-  fill: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 500;
-  dominant-baseline: middle;
+.mm__swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
 }
