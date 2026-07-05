@@ -9,7 +9,7 @@ import { getExerciseById } from '../data/exercises'
 import { newId } from '../db/db'
 import { resolveProgram, mondayIndex } from '../logic/rotation'
 import { useApp } from '../context/AppDataContext'
-import type { CustomPlan, ExerciseMeta, SplitDay } from '../types'
+import type { CustomPlan, ExerciseMeta, Split, SplitDay } from '../types'
 import './PlannerScreen.css'
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -54,6 +54,23 @@ export default function PlannerScreen() {
       days: [{ name: 'Day 1', exerciseIds: [] }],
     }
     setEditingPlan(plan)
+  }
+
+  /**
+   * Built-in splits live in code and can't be edited in place (an app update
+   * would reset them). "Customize" deep-clones one into a fresh editable
+   * program; the original stays as a fallback until you save the copy.
+   */
+  function customizeSplit(split: Split) {
+    setEditingPlan({
+      id: newId(),
+      name: split.name,
+      days: split.days.map((d) => ({
+        name: d.name,
+        exerciseIds: [...d.exerciseIds],
+        ...(d.exerciseMeta ? { exerciseMeta: structuredClone(d.exerciseMeta) } : {}),
+      })),
+    })
   }
 
   function savePlan() {
@@ -233,7 +250,7 @@ export default function PlannerScreen() {
         <h2 className="eyebrow">Programs</h2>
         <ul className="planner__programs">
           {SPLITS.map((s) => (
-            <li key={s.id}>
+            <li key={s.id} className="planner__custom-row">
               <button
                 className={
                   settings.split === s.id
@@ -246,6 +263,13 @@ export default function PlannerScreen() {
                 <span className="planner__program-meta">
                   {s.days.length} days{settings.split === s.id && ' · active'}
                 </span>
+              </button>
+              <button
+                className="planner__icon-btn"
+                aria-label={`Customize ${s.name}`}
+                onClick={() => customizeSplit(s)}
+              >
+                Customize
               </button>
             </li>
           ))}
