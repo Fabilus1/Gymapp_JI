@@ -9,9 +9,19 @@ import {
   getAllBodyWeightEntries,
   newId,
 } from '../db/db'
-import { toDisplayWeight } from '../logic/units'
+import {
+  toDisplayWeight,
+  toDisplayLength,
+  fromDisplayLength,
+  lengthUnitLabel,
+  inchesToFtIn,
+  ftInToInches,
+  inchesToMeters,
+  metersToInches,
+} from '../logic/units'
+import LineChart from '../components/LineChart'
 import { useApp } from '../context/AppDataContext'
-import type { BiologicalSex, BodyMetric, Profile } from '../types'
+import type { BiologicalSex, BodyMetric, MeasureKey, Profile } from '../types'
 import './SettingsScreen.css'
 
 const SEXES: { value: BiologicalSex; label: string }[] = [
@@ -20,12 +30,19 @@ const SEXES: { value: BiologicalSex; label: string }[] = [
   { value: 'other', label: 'Other' },
 ]
 
-const MEASURE_FIELDS: { key: keyof Omit<BodyMetric, 'id' | 'date'>; label: string }[] = [
+const ALL_MEASURE_FIELDS: { key: MeasureKey; label: string }[] = [
   { key: 'biceps', label: 'Biceps' },
+  { key: 'forearms', label: 'Forearms' },
+  { key: 'shoulders', label: 'Shoulders' },
   { key: 'chest', label: 'Chest' },
   { key: 'waist', label: 'Waist' },
+  { key: 'hips', label: 'Hips' },
   { key: 'thighs', label: 'Thighs' },
+  { key: 'calves', label: 'Calves' },
+  { key: 'neck', label: 'Neck' },
 ]
+
+const DEFAULT_VISIBLE: MeasureKey[] = ['biceps', 'chest', 'waist', 'thighs']
 
 function bmiCategory(bmi: number): string {
   if (bmi < 18.5) return 'Underweight'
@@ -44,20 +61,49 @@ export default function SettingsScreen() {
   const { settings, updateSettings } = useApp()
   const [status, setStatus] = useState<string | null>(null)
   const [profile, setProfile] = useState<Profile>({})
+  const [profileLoaded, setProfileLoaded] = useState(false)
   const [latestWeightLb, setLatestWeightLb] = useState<number | null>(null)
   const [metrics, setMetrics] = useState<BodyMetric[]>([])
   const [draftMeasure, setDraftMeasure] = useState<Record<string, string>>({})
+  // height drafts so partial input ("1." / "5' 10.") survives re-renders
+  const [heightDraft, setHeightDraft] = useState<{ ft: string; inch: string; m: string }>({
+    ft: '',
+    inch: '',
+    m: '',
+  })
+  const [editFields, setEditFields] = useState(false)
+  const [graphKey, setGraphKey] = useState<MeasureKey | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    getProfile().then(setProfile)
+    getProfile().then((p) => {
+      setProfile(p)
+      setProfileLoaded(true)
+    })
     getBodyMetrics().then(setMetrics)
     getAllBodyWeightEntries().then((e) => setLatestWeightLb(e[0]?.weight ?? null))
   }, [])
 
+  // Initialize height drafts from the canonical inches value — on load and
+  // whenever the unit system flips (not on every keystroke, so typing never
+  // fights the round-trip conversion).
+  useEffect(() => {
+    if (!profileLoaded) return
+    if (profile.heightIn === undefined) {
+      setHeightDraft({ ft: '', inch: '', m: '' })
+      return
+    }
+    const { ft, inches } = inchesToFtIn(profile.heightIn)
+    setHeightDraft({
+      ft: String(ft),
+      inch: String(inches),
+      m: inchesToMeters(profile.heightIn).toFixed(2),
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileLoaded, settings.units])
+
   function patchProfile(patch: Partial<Profile>) {
     const next = { ...profile, ...patch }
-    // strip empty values so we don't persist NaN/undefined noise
     ;(Object.keys(next) as (keyof Profile)[]).forEach((k) => {
       if (next[k] === undefined) delete next[k]
     })
@@ -65,13 +111,47 @@ export default function SettingsScreen() {
     saveProfile(next)
   }
 
+  function commitImperialHeight(ftRaw: string, inchRaw: string) {
+    const ft = numOrUndef(ftRaw)
+    const inch = numOrUndef(inchRaw)
+    if (ft === undefined && inch === undefined) {
+      patchProfile({ heightIn: undefined })
+      return
+    }
+    patchProfile({ heightIn: ftInToInches(ft ?? 0, inch ?? 0) })
+  }
+
+  function commitMetricHeight(mRaw: string) {
+    const m = numOrUndef(mRaw)
+    if (m === undefined) {
+      patchProfile({ heightIn: undefined })
+      return
+    }
+    patchProfile({ heightIn: metersToInches(m) })
+  }
+
+  const visibleFields = ALL_MEASURE_FIELDS.filter((f) =>
+    (profile.measureFields ?? DEFAULT_VISIBLE).includes(f.key)
+  )
+  const lenUnit = lengthUnitLabel(settings.units)
+
+  function toggleField(key: MeasureKey) {
+    const current = profile.measureFields ?? DEFAULT_VISIBLE
+    const next = current.includes(key)
+      ? current.filter((k) => k !== key)
+      : [...current, key]
+    if (next.length === 0) return // keep at least one visible
+    patchProfile({ measureFields: next })
+    if (graphKey === key) setGraphKey(null)
+  }
+
   async function logMeasurements() {
     const entry: BodyMetric = { id: newId(), date: new Date().toISOString() }
     let any = false
-    for (const f of MEASURE_FIELDS) {
+    for (const f of visibleFields) {
       const v = numOrUndef(draftMeasure[f.key] ?? '')
       if (v !== undefined) {
-        entry[f.key] = v
+        entry[f.key] = fromDisplayLength(v, settings.units) // store inches
         any = true
       }
     }
@@ -79,6 +159,8 @@ export default function SettingsScreen() {
     await addBodyMetric(entry)
     setMetrics(await getBodyMetrics())
     setDraftMeasure({})
+    setStatus('Measurements logged.')
+    window.setTimeout(() => setStatus(null), 2000)
   }
 
   async function handleExport() {
@@ -113,6 +195,18 @@ export default function SettingsScreen() {
       ? (703 * latestWeightLb) / (profile.heightIn * profile.heightIn)
       : null
   const latestMetric = metrics[0]
+
+  // Progression graph: oldest → newest points for the selected body part.
+  const activeGraphKey = graphKey ?? visibleFields[0]?.key ?? null
+  const graphPoints = activeGraphKey
+    ? metrics
+        .filter((m) => m[activeGraphKey] !== undefined)
+        .map((m) => ({
+          date: m.date,
+          value: toDisplayLength(m[activeGraphKey] as number, settings.units),
+        }))
+        .reverse()
+    : []
 
   return (
     <div className="settings">
@@ -149,17 +243,61 @@ export default function SettingsScreen() {
               onChange={(e) => patchProfile({ age: numOrUndef(e.target.value) })}
             />
           </label>
-          <label className="settings__field">
-            <span className="settings__field-label">Height (in)</span>
-            <input
-              className="settings__num"
-              type="text"
-              inputMode="decimal"
-              value={profile.heightIn ?? ''}
-              placeholder="—"
-              onChange={(e) => patchProfile({ heightIn: numOrUndef(e.target.value) })}
-            />
-          </label>
+
+          {settings.units === 'lb' ? (
+            <div className="settings__field">
+              <span className="settings__field-label">Height (ft / in)</span>
+              <div className="settings__height-pair">
+                <input
+                  className="settings__num"
+                  type="text"
+                  inputMode="numeric"
+                  value={heightDraft.ft}
+                  placeholder="5"
+                  aria-label="Height feet"
+                  onChange={(e) => {
+                    const raw = e.target.value
+                    if (!/^\d*$/.test(raw)) return
+                    setHeightDraft((d) => ({ ...d, ft: raw }))
+                    commitImperialHeight(raw, heightDraft.inch)
+                  }}
+                />
+                <span className="settings__height-sep">ft</span>
+                <input
+                  className="settings__num"
+                  type="text"
+                  inputMode="decimal"
+                  value={heightDraft.inch}
+                  placeholder="10"
+                  aria-label="Height inches"
+                  onChange={(e) => {
+                    const raw = e.target.value
+                    if (!/^\d*\.?\d*$/.test(raw)) return
+                    setHeightDraft((d) => ({ ...d, inch: raw }))
+                    commitImperialHeight(heightDraft.ft, raw)
+                  }}
+                />
+                <span className="settings__height-sep">in</span>
+              </div>
+            </div>
+          ) : (
+            <label className="settings__field">
+              <span className="settings__field-label">Height (m)</span>
+              <input
+                className="settings__num"
+                type="text"
+                inputMode="decimal"
+                value={heightDraft.m}
+                placeholder="1.75"
+                onChange={(e) => {
+                  const raw = e.target.value
+                  if (!/^\d*\.?\d*$/.test(raw)) return
+                  setHeightDraft((d) => ({ ...d, m: raw }))
+                  commitMetricHeight(raw)
+                }}
+              />
+            </label>
+          )}
         </div>
 
         <div className="settings__bmi">
@@ -180,14 +318,43 @@ export default function SettingsScreen() {
 
       {/* ---- Measurements ---- */}
       <section className="settings__section">
-        <h2 className="settings__heading">Measurements (in)</h2>
+        <div className="settings__heading-row">
+          <h2 className="settings__heading">Measurements ({lenUnit})</h2>
+          <button
+            className={editFields ? 'settings__edit-btn settings__edit-btn--on' : 'settings__edit-btn'}
+            onClick={() => setEditFields((v) => !v)}
+          >
+            {editFields ? 'Done' : 'Edit fields'}
+          </button>
+        </div>
+
+        {editFields && (
+          <div className="settings__chips">
+            {ALL_MEASURE_FIELDS.map((f) => {
+              const on = (profile.measureFields ?? DEFAULT_VISIBLE).includes(f.key)
+              return (
+                <button
+                  key={f.key}
+                  className={on ? 'settings__chip settings__chip--on' : 'settings__chip'}
+                  onClick={() => toggleField(f.key)}
+                >
+                  {f.label}
+                </button>
+              )
+            })}
+          </div>
+        )}
+
         <div className="settings__measure-grid">
-          {MEASURE_FIELDS.map((f) => (
+          {visibleFields.map((f) => (
             <label key={f.key} className="settings__field">
               <span className="settings__field-label">
                 {f.label}
                 {latestMetric?.[f.key] !== undefined && (
-                  <span className="settings__last-val"> · last {latestMetric[f.key]}</span>
+                  <span className="settings__last-val">
+                    {' '}
+                    · last {toDisplayLength(latestMetric[f.key] as number, settings.units)}
+                  </span>
                 )}
               </span>
               <input
@@ -196,9 +363,7 @@ export default function SettingsScreen() {
                 inputMode="decimal"
                 value={draftMeasure[f.key] ?? ''}
                 placeholder="—"
-                onChange={(e) =>
-                  setDraftMeasure((d) => ({ ...d, [f.key]: e.target.value }))
-                }
+                onChange={(e) => setDraftMeasure((d) => ({ ...d, [f.key]: e.target.value }))}
               />
             </label>
           ))}
@@ -206,6 +371,35 @@ export default function SettingsScreen() {
         <button className="settings__log-measure" onClick={logMeasurements}>
           Log measurements
         </button>
+
+        {/* progression graph per body part */}
+        {metrics.length > 0 && activeGraphKey && (
+          <div className="settings__graph">
+            <span className="settings__field-label">Progression</span>
+            <div className="settings__chips">
+              {visibleFields.map((f) => (
+                <button
+                  key={f.key}
+                  className={
+                    f.key === activeGraphKey ? 'settings__chip settings__chip--on' : 'settings__chip'
+                  }
+                  onClick={() => setGraphKey(f.key)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            {graphPoints.length >= 2 ? (
+              <LineChart points={graphPoints} />
+            ) : (
+              <p className="settings__description">
+                {graphPoints.length === 1
+                  ? `One ${activeGraphKey} entry logged — the chart starts with your next one.`
+                  : `No ${activeGraphKey} entries yet.`}
+              </p>
+            )}
+          </div>
+        )}
       </section>
 
       {/* ---- Units ---- */}
@@ -225,7 +419,8 @@ export default function SettingsScreen() {
           ))}
         </div>
         <p className="settings__description">
-          Weights are stored internally in lb, so switching never rewrites your history.
+          Weights are stored internally in lb, so switching never rewrites your history. kg mode
+          also switches height to meters and measurements to cm.
         </p>
       </section>
 

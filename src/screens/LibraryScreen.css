@@ -111,3 +111,18 @@
   font-size: 14px;
   color: var(--text-secondary);
 }
+
+/* V17: second (equipment) filter row + frequent star */
+.library__filters--equip {
+  margin-top: -8px;
+}
+
+.library__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.library__star {
+  flex-shrink: 0;
+}

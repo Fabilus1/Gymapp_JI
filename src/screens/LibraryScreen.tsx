@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Star } from 'lucide-react'
 import { ALL_EXERCISES } from '../data/exercises'
 import { getMuscleTarget } from '../data/muscleDetail'
 import { buildHistoryIndex, lastPerformanceFromIndex } from '../logic/history'
@@ -24,6 +25,26 @@ const MUSCLES: MuscleGroup[] = [
   'forearms',
 ]
 
+// "smith" is a pseudo-type: those exercises store equipment 'machine' but
+// carry "(Smith Machine)" in the strict name. Plain "machine" excludes them.
+type EquipFilter = 'barbell' | 'dumbbell' | 'machine' | 'smith' | 'cable' | 'bodyweight'
+
+const EQUIP_FILTERS: { value: EquipFilter; label: string }[] = [
+  { value: 'barbell', label: 'Barbell' },
+  { value: 'dumbbell', label: 'Dumbbell' },
+  { value: 'machine', label: 'Machine' },
+  { value: 'smith', label: 'Smith machine' },
+  { value: 'cable', label: 'Cable' },
+  { value: 'bodyweight', label: 'Bodyweight' },
+]
+
+function matchesEquip(e: Exercise, filter: EquipFilter): boolean {
+  const isSmith = e.name.includes('(Smith')
+  if (filter === 'smith') return isSmith
+  if (filter === 'machine') return e.equipment === 'machine' && !isSmith
+  return e.equipment === filter
+}
+
 function daysAgoLabel(iso: string): string {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
   if (days === 0) return 'Today'
@@ -34,15 +55,29 @@ function daysAgoLabel(iso: string): string {
 export default function LibraryScreen() {
   const { sessions } = useApp()
   const [muscle, setMuscle] = useState<MuscleGroup | null>(null)
+  const [equip, setEquip] = useState<EquipFilter | null>(null)
+  const [frequent, setFrequent] = useState(false)
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Exercise | null>(null)
 
   // One pass over history instead of rescanning it per exercise row.
   const historyIndex = useMemo(() => buildHistoryIndex(sessions), [sessions])
 
-  const byMuscle =
-    muscle === null ? ALL_EXERCISES : ALL_EXERCISES.filter((e) => e.muscle === muscle)
-  const results = searchExercises(byMuscle, query)
+  const results = useMemo(() => {
+    let list = ALL_EXERCISES
+    if (muscle !== null) list = list.filter((e) => e.muscle === muscle)
+    if (equip !== null) list = list.filter((e) => matchesEquip(e, equip))
+    list = searchExercises(list, query)
+    if (frequent) {
+      // only exercises you've actually done, most-performed first
+      list = list
+        .filter((e) => (historyIndex.get(e.id)?.length ?? 0) > 0)
+        .sort(
+          (a, b) => (historyIndex.get(b.id)?.length ?? 0) - (historyIndex.get(a.id)?.length ?? 0)
+        )
+    }
+    return list
+  }, [muscle, equip, query, frequent, historyIndex])
 
   return (
     <div className="library">
@@ -54,10 +89,26 @@ export default function LibraryScreen() {
         onChange={(e) => setQuery(e.target.value)}
       />
 
+      {/* muscle row, with Frequent pinned first */}
       <div className="library__filters">
         <button
-          className={muscle === null ? 'library__filter library__filter--active' : 'library__filter'}
-          onClick={() => setMuscle(null)}
+          className={
+            frequent ? 'library__filter library__filter--active' : 'library__filter'
+          }
+          onClick={() => setFrequent((v) => !v)}
+        >
+          <Star size={12} className="library__star" /> Frequent
+        </button>
+        <button
+          className={
+            muscle === null && !frequent
+              ? 'library__filter library__filter--active'
+              : 'library__filter'
+          }
+          onClick={() => {
+            setMuscle(null)
+            setFrequent(false)
+          }}
         >
           All
         </button>
@@ -72,10 +123,32 @@ export default function LibraryScreen() {
         ))}
       </div>
 
+      {/* equipment row */}
+      <div className="library__filters library__filters--equip">
+        <button
+          className={equip === null ? 'library__filter library__filter--active' : 'library__filter'}
+          onClick={() => setEquip(null)}
+        >
+          Any equipment
+        </button>
+        {EQUIP_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            className={
+              equip === f.value ? 'library__filter library__filter--active' : 'library__filter'
+            }
+            onClick={() => setEquip(equip === f.value ? null : f.value)}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       <ul className="library__list">
         {results.map((e) => {
           const last = lastPerformanceFromIndex(historyIndex, e.id)
           const target = getMuscleTarget(e.id)
+          const count = historyIndex.get(e.id)?.length ?? 0
           return (
             <li key={e.id} className="library__item">
               <button className="library__row" onClick={() => setSelected(e)}>
@@ -87,12 +160,18 @@ export default function LibraryScreen() {
                     reps
                   </span>
                 </div>
-                <span className="library__last">{last ? daysAgoLabel(last.date) : ''}</span>
+                <span className="library__last">
+                  {frequent && count > 0 ? `${count}×` : last ? daysAgoLabel(last.date) : ''}
+                </span>
               </button>
             </li>
           )
         })}
-        {results.length === 0 && <li className="library__none">No matches</li>}
+        {results.length === 0 && (
+          <li className="library__none">
+            {frequent ? 'Nothing logged yet — finish a workout first.' : 'No matches'}
+          </li>
+        )}
       </ul>
 
       {selected && (

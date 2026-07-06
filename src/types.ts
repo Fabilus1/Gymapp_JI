@@ -70,17 +70,26 @@ export interface Profile {
   age?: number
   /** height in inches — imperial BMI = 703 × lb / in² */
   heightIn?: number
+  /** which measurement fields are shown in Settings (default set if absent) */
+  measureFields?: MeasureKey[]
 }
 
-/** A dated set of body measurements (inches). All fields optional. */
-export interface BodyMetric {
+export type MeasureKey =
+  | 'biceps'
+  | 'chest'
+  | 'waist'
+  | 'thighs'
+  | 'forearms'
+  | 'calves'
+  | 'shoulders'
+  | 'hips'
+  | 'neck'
+
+/** A dated set of body measurements (stored in inches). All fields optional. */
+export type BodyMetric = {
   id: string
   date: string // ISO 8601
-  biceps?: number
-  chest?: number
-  waist?: number
-  thighs?: number
-}
+} & Partial<Record<MeasureKey, number>>
 
 export interface BodyWeightEntry {
   id: string

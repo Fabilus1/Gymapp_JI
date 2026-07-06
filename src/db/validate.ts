@@ -9,6 +9,7 @@ import type {
   SetEntry,
   BodyWeightEntry,
   RecoveryEntry,
+  MeasureKey,
   MuscleGroup,
   Soreness,
 } from '../types'
@@ -43,6 +44,10 @@ export function asSettings(v: unknown): Settings {
   return settings
 }
 
+export const MEASURE_KEYS: MeasureKey[] = [
+  'biceps', 'chest', 'waist', 'thighs', 'forearms', 'calves', 'shoulders', 'hips', 'neck',
+]
+
 export function asProfile(v: unknown): Profile {
   if (!isObj(v)) return {}
   const p: Profile = {}
@@ -51,6 +56,12 @@ export function asProfile(v: unknown): Profile {
   if (age !== undefined) p.age = age
   const height = optNum(v.heightIn)
   if (height !== undefined) p.heightIn = height
+  if (Array.isArray(v.measureFields)) {
+    const fields = v.measureFields.filter((f): f is MeasureKey =>
+      MEASURE_KEYS.includes(f as MeasureKey)
+    )
+    if (fields.length > 0) p.measureFields = fields
+  }
   return p
 }
 
@@ -60,7 +71,7 @@ export function asBodyMetrics(v: unknown): BodyMetric[] {
   for (const m of v) {
     if (!isObj(m) || !isStr(m.id) || !isStr(m.date)) continue
     const entry: BodyMetric = { id: m.id, date: m.date }
-    for (const k of ['biceps', 'chest', 'waist', 'thighs'] as const) {
+    for (const k of MEASURE_KEYS) {
       const n = optNum(m[k])
       if (n !== undefined) entry[k] = n
     }

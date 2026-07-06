@@ -36,3 +36,42 @@ export function displayWeightStr(lb: number, units: Units): string {
 export function unitLabel(units: Units): string {
   return units
 }
+
+// ---- Lengths (heights & body measurements, stored in inches) ----
+
+const CM_PER_IN = 2.54
+
+/** 70.5in → { ft: 5, inches: 10.5 } */
+export function inchesToFtIn(totalIn: number): { ft: number; inches: number } {
+  const ft = Math.floor(totalIn / 12)
+  const inches = Math.round((totalIn - ft * 12) * 10) / 10
+  return { ft, inches }
+}
+
+export function ftInToInches(ft: number, inches: number): number {
+  return ft * 12 + inches
+}
+
+/** inches → meters, 2 decimals (e.g. 69 → 1.75) */
+export function inchesToMeters(totalIn: number): number {
+  return Math.round(totalIn * CM_PER_IN) / 100
+}
+
+export function metersToInches(m: number): number {
+  return Math.round(((m * 100) / CM_PER_IN) * 10) / 10
+}
+
+/** Body measurement display: inches as-is, or cm (1 decimal) in metric mode. */
+export function toDisplayLength(inches: number, units: Units): number {
+  if (units === 'kg') return Math.round(inches * CM_PER_IN * 10) / 10
+  return inches
+}
+
+export function fromDisplayLength(value: number, units: Units): number {
+  if (units === 'kg') return Math.round((value / CM_PER_IN) * 100) / 100
+  return value
+}
+
+export function lengthUnitLabel(units: Units): string {
+  return units === 'kg' ? 'cm' : 'in'
+}
