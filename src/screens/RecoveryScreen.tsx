@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import SegmentBar from '../components/SegmentBar'
+import RecoveryBodyMap from '../components/RecoveryBodyMap'
 import { addRecoveryEntry, getAllRecoveryEntries, newId } from '../db/db'
 import { muscleRecovery, STATUS_LABELS } from '../logic/recovery'
 import { useApp } from '../context/AppDataContext'
@@ -50,8 +51,14 @@ export default function RecoveryScreen() {
     [sessions, log]
   )
 
+  const statuses = useMemo(
+    () => new Map(MUSCLES.map((m) => [m, recoveries.get(m)!.status])),
+    [recoveries]
+  )
+
   return (
     <div className="recovery">
+      <RecoveryBodyMap statuses={statuses} />
       <ul className="recovery__list">
         {MUSCLES.map((muscle) => {
           const r = recoveries.get(muscle)!

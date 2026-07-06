@@ -17,12 +17,12 @@ import './MuscleDiagram.css'
 //   • erectors → "lower-back"
 //   • tibialis, hip flexors → dropped (no matching region)
 
-// The premium "armor" treatment lives in MuscleDiagram.css: every polygon
-// gets a seam stroke (negative space between blocks) and alternate facets
-// get a brightness lift, which turns the package's flat polygons into a
-// deliberate low-poly relief — on both the slate base and the mint.
-const BODY_COLOR = '#2e2e36' // slate facet base
-const SECONDARY_COLOR = 'rgba(52, 211, 153, 0.38)' // faded mint (frequency 1)
+// "Soft-poly" treatment (see MuscleDiagram.css): thick surface-dark seams
+// with round joins visually round off the polygon corners — organic like an
+// anatomical chart — while a subtle alternating facet lift keeps the
+// low-poly relief. Plates sit in a lighter slate-blue so highlights pop.
+const BODY_COLOR = '#3a3d49' // slate-blue plate base
+const SECONDARY_COLOR = 'rgba(52, 211, 153, 0.45)' // faded mint (frequency 1)
 const PRIMARY_COLOR = '#34d399' // solid mint (frequency 2)
 
 // Muscles whose best view is the back of the body — used to pick a default tab.

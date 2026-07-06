@@ -41,22 +41,25 @@
 }
 
 /*
- * The "armor" pass. react-body-highlighter draws each view as ~33 flat
- * polygons; these rules turn them into deliberate low-poly plates:
- *  - a dark seam stroke separates every block (negative space, rounded joins)
- *  - alternating facets get a brightness lift, faking a light source across
- *    the relief — works on the slate base and the mint highlights alike
+ * "Soft-poly" pass. react-body-highlighter draws each view as ~33 flat
+ * polygons; these rules blend the low-poly and organic-chart styles:
+ *  - THICK surface-dark seams with round joins/caps — the wide rounded
+ *    stroke swallows the sharp polygon corners, so plates read as smooth
+ *    anatomical bellies (the organic reference) while staying faceted
+ *  - a subtle alternating brightness lift keeps the low-poly relief,
+ *    on the slate base and the mint highlights alike
  */
 .mm__model svg polygon {
-  stroke: #0c0c0f;
-  stroke-width: 0.7;
+  stroke: #131419;
+  stroke-width: 1.5;
   stroke-linejoin: round;
+  stroke-linecap: round;
   paint-order: stroke fill;
   transition: fill 0.25s ease;
 }
 
 .mm__model svg polygon:nth-of-type(even) {
-  filter: brightness(1.16);
+  filter: brightness(1.09);
 }
 
 /* legend as quiet chips */
