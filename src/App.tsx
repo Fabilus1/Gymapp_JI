@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import Header from './components/Header'
 import Splash from './components/Splash'
 import Toast from './components/Toast'
+import InstallHint from './components/InstallHint'
 import BottomNav, { type TabId } from './components/BottomNav'
 import { useKeyboardOpen } from './hooks/useKeyboardOpen'
 import RestTimer from './components/RestTimer'
@@ -146,6 +147,7 @@ export default function App() {
         <BottomNav active={tab} onChange={setTab} hidden={navHidden} />
       )}
       <Toast />
+      {!keyboardOpen && <InstallHint />}
       <AnimatePresence>{showSplash && <Splash key="splash" />}</AnimatePresence>
     </AppDataProvider>
   )

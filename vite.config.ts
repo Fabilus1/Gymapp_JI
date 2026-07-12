@@ -10,9 +10,12 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/apple-touch-icon.png'],
       manifest: {
-        name: 'IronLog',
+        id: '/',
+        name: 'IronLog — Hypertrophy Tracker',
         short_name: 'IronLog',
         description: 'Personal hypertrophy tracker',
+        lang: 'en',
+        categories: ['health', 'fitness', 'sports'],
         theme_color: '#09090b',
         background_color: '#09090b',
         display: 'standalone',
