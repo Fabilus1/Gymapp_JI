@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, Plus } from 'lucide-react'
 import { ALL_EXERCISES, getExerciseById } from '../data/exercises'
 import { getMuscleTarget } from '../data/muscleDetail'
 import { searchExercises } from '../logic/search'
+import { useDebounced } from '../hooks/useDebounced'
 import ExerciseImage from './ExerciseImage'
 import './ExercisePicker.css'
 
@@ -19,9 +20,14 @@ export default function ExercisePicker({
   const [query, setQuery] = useState('')
   const [previewId, setPreviewId] = useState<string | null>(null)
 
-  const results = searchExercises(
-    ALL_EXERCISES.filter((e) => !excludeIds.includes(e.id)),
-    query
+  // 300ms debounce + memo so keystrokes don't re-filter 370 exercises on
+  // every input event (the source of the add-to-plan lag).
+  const debouncedQuery = useDebounced(query, 300)
+  const excludeKey = excludeIds.join(',')
+  const results = useMemo(
+    () => searchExercises(ALL_EXERCISES.filter((e) => !excludeIds.includes(e.id)), debouncedQuery),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [debouncedQuery, excludeKey]
   )
 
   const preview = previewId ? getExerciseById(previewId) : null

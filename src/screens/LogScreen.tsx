@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
+  BarChart3,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -22,6 +23,7 @@ import ExerciseImage from '../components/ExerciseImage'
 import PRCelebration from '../components/PRCelebration'
 import PlateCalculator from '../components/PlateCalculator'
 import FinishModal from '../components/FinishModal'
+import ExerciseStatsSheet from '../components/ExerciseStatsSheet'
 import Sparkline from '../components/Sparkline'
 import { getExerciseById } from '../data/exercises'
 import { coachInsight } from '../logic/coach'
@@ -94,6 +96,7 @@ export default function LogScreen({
   const [pickerOpen, setPickerOpen] = useState(false)
   const [legendOpen, setLegendOpen] = useState(false)
   const [finishOpen, setFinishOpen] = useState(false)
+  const [statsFor, setStatsFor] = useState<string | null>(null)
   // Raw text of the weight field being typed, so "37." survives re-render
   // (the input stores lb but shows the display unit). Keyed "exIdx:setIdx".
   const [weightDrafts, setWeightDrafts] = useState<Record<string, string>>({})
@@ -301,20 +304,27 @@ export default function LogScreen({
         <div className="log__hero">
           <ExerciseImage exerciseId={entry.exerciseId} variant="hero" />
           <div className="log__hero-shade" />
-          <div className="log__hero-text">
+          <button
+            className="log__hero-text"
+            onClick={() => setStatsFor(entry.exerciseId)}
+            aria-label={`View progress for ${exercise?.name ?? entry.exerciseId}`}
+          >
             {superset && (
               <span className="log__superset-tag">
                 <Link2 size={11} /> Superset
               </span>
             )}
-            <h3 className="log__exercise-name">{exercise?.name ?? entry.exerciseId}</h3>
+            <h3 className="log__exercise-name">
+              {exercise?.name ?? entry.exerciseId}
+              <BarChart3 size={14} className="log__stats-icon" />
+            </h3>
             {insight && (
               <p className="log__goal">
                 <Target size={13} />
                 {insight.target ?? `Target ${exercise?.repRange[0]}–${exercise?.repRange[1]} reps`}
               </p>
             )}
-          </div>
+          </button>
           {trend.length >= 2 && (
             <div className="log__hero-spark">
               <Sparkline values={trend} />
@@ -631,6 +641,15 @@ export default function LogScreen({
           weight={plateWeight}
           units={units}
           onClose={() => setPlateWeight(null)}
+        />
+      )}
+
+      {statsFor && (
+        <ExerciseStatsSheet
+          exerciseId={statsFor}
+          sessions={sessions}
+          units={units}
+          onClose={() => setStatsFor(null)}
         />
       )}
 

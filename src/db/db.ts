@@ -1,5 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import { notify } from '../logic/notify'
+import { canonicalId } from '../data/aliases'
 import {
   asSettings,
   asProfile,
@@ -149,6 +150,55 @@ export async function getAllSessions(): Promise<WorkoutSession[]> {
 export async function saveSession(session: WorkoutSession): Promise<void> {
   const db = await getDb()
   await guardedWrite(() => db.put('sessions', session), 'your finished workout')
+}
+
+/**
+ * One-time normalization: rewrite legacy/duplicate exercise ids in saved plans,
+ * sessions and the in-progress workout to their canonical id, so history and
+ * templates unify onto a single exercise. Idempotent.
+ */
+export async function migrateExerciseAliases(): Promise<void> {
+  const plans = await getCustomPlans()
+  let plansChanged = false
+  for (const plan of plans) {
+    for (const day of plan.days) {
+      const mapped = day.exerciseIds.map(canonicalId)
+      if (mapped.join() !== day.exerciseIds.join()) plansChanged = true
+      day.exerciseIds = mapped
+      if (day.exerciseMeta) {
+        const meta: NonNullable<typeof day.exerciseMeta> = {}
+        for (const [k, v] of Object.entries(day.exerciseMeta)) meta[canonicalId(k)] = v
+        day.exerciseMeta = meta
+      }
+    }
+  }
+  if (plansChanged) await saveCustomPlans(plans)
+
+  const db = await getDb()
+  for (const session of await getAllSessions()) {
+    let changed = false
+    for (const e of session.exercises) {
+      const c = canonicalId(e.exerciseId)
+      if (c !== e.exerciseId) {
+        e.exerciseId = c
+        changed = true
+      }
+    }
+    if (changed) await db.put('sessions', session)
+  }
+
+  const active = await getInProgressSession()
+  if (active) {
+    let changed = false
+    for (const e of active.exercises) {
+      const c = canonicalId(e.exerciseId)
+      if (c !== e.exerciseId) {
+        e.exerciseId = c
+        changed = true
+      }
+    }
+    if (changed) await saveInProgressSession(active)
+  }
 }
 
 // ---- Body weight ----

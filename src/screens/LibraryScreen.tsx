@@ -4,6 +4,7 @@ import { ALL_EXERCISES } from '../data/exercises'
 import { getMuscleTarget } from '../data/muscleDetail'
 import { buildHistoryIndex, lastPerformanceFromIndex } from '../logic/history'
 import { searchExercises } from '../logic/search'
+import { useDebounced } from '../hooks/useDebounced'
 import ExerciseDetail from '../components/ExerciseDetail'
 import ExerciseImage from '../components/ExerciseImage'
 import { useApp } from '../context/AppDataContext'
@@ -62,12 +63,13 @@ export default function LibraryScreen() {
 
   // One pass over history instead of rescanning it per exercise row.
   const historyIndex = useMemo(() => buildHistoryIndex(sessions), [sessions])
+  const debouncedQuery = useDebounced(query, 300)
 
   const results = useMemo(() => {
     let list = ALL_EXERCISES
     if (muscle !== null) list = list.filter((e) => e.muscle === muscle)
     if (equip !== null) list = list.filter((e) => matchesEquip(e, equip))
-    list = searchExercises(list, query)
+    list = searchExercises(list, debouncedQuery)
     if (frequent) {
       // only exercises you've actually done, most-performed first
       list = list
@@ -77,7 +79,7 @@ export default function LibraryScreen() {
         )
     }
     return list
-  }, [muscle, equip, query, frequent, historyIndex])
+  }, [muscle, equip, debouncedQuery, frequent, historyIndex])
 
   return (
     <div className="library">

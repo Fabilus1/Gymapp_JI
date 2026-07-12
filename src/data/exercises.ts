@@ -315,9 +315,19 @@ export const EXERCISES: Exercise[] = [
 // V6 mass expansion + V7 exact-name injection live in separate modules.
 import { EXTRA_EXERCISES } from './exercisesExtra'
 import { EXACT_EXERCISES } from './exercisesExact'
+import { EXERCISE_ALIASES, canonicalId } from './aliases'
 
-export const ALL_EXERCISES: Exercise[] = [...EXERCISES, ...EXTRA_EXERCISES, ...EXACT_EXERCISES]
+// Redundant duplicates (the aliased x-* ids) are dropped from every list so
+// they never appear twice in Library/pickers; getExerciseById still resolves
+// them via the alias map for any lingering historical reference.
+export const ALL_EXERCISES: Exercise[] = [
+  ...EXERCISES,
+  ...EXTRA_EXERCISES,
+  ...EXACT_EXERCISES,
+].filter((e) => !(e.id in EXERCISE_ALIASES))
+
+const BY_ID = new Map(ALL_EXERCISES.map((e) => [e.id, e]))
 
 export function getExerciseById(id: string): Exercise | undefined {
-  return ALL_EXERCISES.find((e) => e.id === id)
+  return BY_ID.get(canonicalId(id))
 }

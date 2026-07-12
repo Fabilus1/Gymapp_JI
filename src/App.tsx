@@ -4,6 +4,7 @@ import Header from './components/Header'
 import Splash from './components/Splash'
 import Toast from './components/Toast'
 import BottomNav, { type TabId } from './components/BottomNav'
+import { useKeyboardOpen } from './hooks/useKeyboardOpen'
 import RestTimer from './components/RestTimer'
 import TodayScreen from './screens/TodayScreen'
 import LogScreen from './screens/LogScreen'
@@ -49,7 +50,9 @@ export default function App() {
     return () => window.clearTimeout(t)
   }, [])
 
-  // Collapsible bottom nav: hide on scroll-down, reveal on scroll-up.
+  // Collapsible bottom nav: hide on scroll-down, reveal on scroll-up, and
+  // hide entirely while the keyboard is up so it can't cover search results.
+  const keyboardOpen = useKeyboardOpen()
   const [navHidden, setNavHidden] = useState(false)
   const lastScrollY = useRef(0)
   function handleScroll(e: React.UIEvent<HTMLElement>) {
@@ -139,7 +142,9 @@ export default function App() {
           showPresets={tab === 'log' && data.activeSession !== null}
         />
       )}
-      {!settingsOpen && <BottomNav active={tab} onChange={setTab} hidden={navHidden} />}
+      {!settingsOpen && !keyboardOpen && (
+        <BottomNav active={tab} onChange={setTab} hidden={navHidden} />
+      )}
       <Toast />
       <AnimatePresence>{showSplash && <Splash key="splash" />}</AnimatePresence>
     </AppDataProvider>

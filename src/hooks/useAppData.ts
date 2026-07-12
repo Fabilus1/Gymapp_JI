@@ -10,6 +10,7 @@ import {
   getCustomPlans,
   saveCustomPlans,
   addRecoveryEntry,
+  migrateExerciseAliases,
   newId,
 } from '../db/db'
 import type { MuscleGroup, Soreness } from '../types'
@@ -70,15 +71,19 @@ export function useAppData() {
   }, [flushActiveSession])
 
   useEffect(() => {
-    Promise.all([getSettings(), getAllSessions(), getInProgressSession(), getCustomPlans()]).then(
-      ([s, all, active, plans]) => {
+    // Normalize any legacy duplicate exercise ids before loading into state.
+    migrateExerciseAliases()
+      .catch(() => {}) // migration is best-effort; never block the app on it
+      .then(() =>
+        Promise.all([getSettings(), getAllSessions(), getInProgressSession(), getCustomPlans()])
+      )
+      .then(([s, all, active, plans]) => {
         setSettings(s)
         setSessions(all)
         setActiveSession(active)
         setCustomPlans(plans)
         setLoaded(true)
-      }
-    )
+      })
   }, [])
 
   const updateSettings = useCallback(async (next: Settings) => {

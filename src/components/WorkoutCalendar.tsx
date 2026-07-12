@@ -140,17 +140,21 @@ export default function WorkoutCalendar({
                 )}
 
                 <ul className="wcal__session-list">
-                  {s.exercises.map((e, i) => (
-                    <li key={`${e.exerciseId}-${i}`} className="wcal__session-ex">
-                      <span className="wcal__session-ex-name">
-                        {getExerciseById(e.exerciseId)?.name ?? e.exerciseId}
-                      </span>
-                      <span className="wcal__session-ex-sets">
-                        {formatWeight(Math.max(...e.sets.map((x) => x.weight)), units)} ×{' '}
-                        {e.sets.map((x) => x.reps).join(', ')}
-                      </span>
-                    </li>
-                  ))}
+                  {s.exercises.map((e, i) => {
+                    const sets = e?.sets ?? []
+                    // guard against empty/legacy sets → no Math.max(...[]) = -Infinity
+                    const topWeight = sets.length ? Math.max(...sets.map((x) => x?.weight ?? 0)) : 0
+                    return (
+                      <li key={`${e.exerciseId}-${i}`} className="wcal__session-ex">
+                        <span className="wcal__session-ex-name">
+                          {getExerciseById(e.exerciseId)?.name ?? e.exerciseId}
+                        </span>
+                        <span className="wcal__session-ex-sets">
+                          {formatWeight(topWeight, units)} × {sets.map((x) => x?.reps ?? 0).join(', ')}
+                        </span>
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
             )
