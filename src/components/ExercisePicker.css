@@ -4,7 +4,8 @@
   background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: flex-end;
-  z-index: 10;
+  z-index: 90; /* above the bottom nav / rest bar */
+  overscroll-behavior: contain;
 }
 
 .picker__sheet {
@@ -54,6 +55,8 @@
   margin: 0;
   padding: 0 20px 20px;
   overflow-y: auto;
+  overscroll-behavior: contain; /* don't chain the scroll to the page behind */
+  -webkit-overflow-scrolling: touch;
 }
 
 .picker__item {
@@ -112,6 +115,8 @@
   flex-direction: column;
   padding: 14px 20px calc(env(safe-area-inset-bottom) + 20px);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .picker__preview-back {
@@ -182,7 +187,9 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 24px;
+  margin-top: auto; /* push to the bottom of the preview column */
+  position: sticky;
+  bottom: 0;
   width: 100%;
   background: var(--accent);
   color: var(--on-accent);
@@ -192,6 +199,8 @@
   padding: 15px;
   cursor: pointer;
   transition: transform 0.12s ease;
+  /* keep it clear of the home-indicator / screen edge */
+  box-shadow: 0 -12px 16px -6px var(--bg);
 }
 
 .picker__add-btn:active {

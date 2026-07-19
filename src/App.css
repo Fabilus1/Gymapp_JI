@@ -2,7 +2,10 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: clip;
-  -webkit-overflow-scrolling: touch;
+  /* NB: no -webkit-overflow-scrolling: touch — on iOS it anchors fixed-position
+     overlays (sheets/modals) to this scroll box instead of the viewport, which
+     let the bottom nav sit over them. Momentum scrolling is the default on
+     modern iOS anyway. */
   animation: screen-in 0.18s ease-out;
 }
 

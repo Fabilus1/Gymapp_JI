@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, Plus } from 'lucide-react'
 import { ALL_EXERCISES, getExerciseById } from '../data/exercises'
@@ -33,7 +34,10 @@ export default function ExercisePicker({
   const preview = previewId ? getExerciseById(previewId) : null
   const target = previewId ? getMuscleTarget(previewId) : undefined
 
-  return (
+  // Portal to <body> so the sheet escapes the scrolling `.screen` container
+  // (iOS anchors position:fixed to the scroll ancestor, which was letting the
+  // bottom nav sit over the "Add to Plan" button).
+  return createPortal(
     <div className="picker" onClick={onClose}>
       <div className="picker__sheet" onClick={(e) => e.stopPropagation()}>
         <div className="picker__bar">
@@ -108,6 +112,7 @@ export default function ExercisePicker({
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
