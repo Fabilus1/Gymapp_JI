@@ -40,7 +40,8 @@ const EQUIP_FILTERS: { value: EquipFilter; label: string }[] = [
 ]
 
 function matchesEquip(e: Exercise, filter: EquipFilter): boolean {
-  const isSmith = e.name.includes('(Smith')
+  // catches both "X (Smith Machine)" and any "Smith Machine X" naming
+  const isSmith = /smith machine/i.test(e.name)
   if (filter === 'smith') return isSmith
   if (filter === 'machine') return e.equipment === 'machine' && !isSmith
   return e.equipment === filter

@@ -112,3 +112,38 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
+
+/* per-session log history */
+.detail__log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail__log {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.detail__log:last-child {
+  border-bottom: none;
+}
+
+.detail__log-date {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.detail__log-sets {
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}

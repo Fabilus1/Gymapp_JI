@@ -3,9 +3,16 @@ import MuscleDiagram from './MuscleDiagram'
 import LineChart from './LineChart'
 import { EXERCISE_IMAGES } from '../data/exerciseImages'
 import { getMuscleTarget } from '../data/muscleDetail'
-import { strengthTrend, findLastPerformance } from '../logic/progression'
+import { strengthTrend } from '../logic/progression'
+import { exerciseHistory } from '../logic/exerciseStats'
+import { toDisplayWeight } from '../logic/units'
+import { useApp } from '../context/AppDataContext'
 import type { Exercise, WorkoutSession } from '../types'
 import './ExerciseDetail.css'
+
+function dateLabel(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })
+}
 
 export default function ExerciseDetail({
   exercise,
@@ -16,9 +23,10 @@ export default function ExerciseDetail({
   sessions: WorkoutSession[]
   onClose: () => void
 }) {
+  const { units } = useApp()
   const image = EXERCISE_IMAGES[exercise.id]
   const target = getMuscleTarget(exercise.id)
-  const last = findLastPerformance(sessions, exercise.id)
+  const history = useMemo(() => exerciseHistory(sessions, exercise.id), [sessions, exercise.id])
   const trend = useMemo(
     () => strengthTrend(sessions, exercise.id).map((p) => ({ date: p.date, value: p.weight })),
     [sessions, exercise.id]
@@ -79,13 +87,19 @@ export default function ExerciseDetail({
             <p className="detail__cue">{exercise.cue}</p>
           </section>
 
-          {last && (
+          {history.length > 0 && (
             <section className="detail__section">
-              <h3 className="eyebrow">Last session</h3>
-              <p className="detail__last">
-                {Math.max(...last.sets.map((s) => s.weight))} lb ×{' '}
-                {last.sets.map((s) => s.reps).join(', ')}
-              </p>
+              <h3 className="eyebrow">History</h3>
+              <ul className="detail__log-list">
+                {history.map((log, i) => (
+                  <li key={`${log.date}-${i}`} className="detail__log">
+                    <span className="detail__log-date">{dateLabel(log.date)}</span>
+                    <span className="detail__log-sets">
+                      {log.sets.map((s) => `${toDisplayWeight(s.weight, units)}×${s.reps}`).join('  ')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
 

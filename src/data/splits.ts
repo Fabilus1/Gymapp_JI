@@ -145,7 +145,7 @@ export const SPLITS: Split[] = [
       {
         name: 'Full Body A',
         exerciseIds: [
-          'rdl-smith',
+          'x-smith-machine-stiff-leg-deadlift',
           't-bar-row',
           'leg-extension',
           'single-arm-cable-tricep-extension',
@@ -183,7 +183,7 @@ export const SPLITS: Split[] = [
       {
         name: 'Full Body C',
         exerciseIds: [
-          'rdl-smith',
+          'x-smith-machine-stiff-leg-deadlift',
           'lat-pulldown',
           'leg-extension',
           'seated-leg-curl',

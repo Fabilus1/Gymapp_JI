@@ -1,9 +1,13 @@
 import { X } from 'lucide-react'
 import { getExerciseById } from '../data/exercises'
-import { computeExerciseStats } from '../logic/exerciseStats'
-import { formatWeight, type Units } from '../logic/units'
+import { computeExerciseStats, exerciseHistory } from '../logic/exerciseStats'
+import { formatWeight, toDisplayWeight, type Units } from '../logic/units'
 import type { WorkoutSession } from '../types'
 import './ExerciseStatsSheet.css'
+
+function dateLabel(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })
+}
 
 /**
  * Inline progress mini-dashboard for one exercise — slides up over the active
@@ -23,6 +27,7 @@ export default function ExerciseStatsSheet({
 }) {
   const exercise = getExerciseById(exerciseId)
   const stats = computeExerciseStats(sessions, exerciseId)
+  const history = exerciseHistory(sessions, exerciseId)
   const w = (lb: number) => (lb > 0 ? formatWeight(lb, units) : '—')
 
   const cards: { label: string; value: string }[] = [
@@ -50,14 +55,33 @@ export default function ExerciseStatsSheet({
         {stats.sessionCount === 0 ? (
           <p className="xstats__empty">No history yet — log a set of this exercise to see PRs.</p>
         ) : (
-          <div className="xstats__grid">
-            {cards.map((c) => (
-              <div key={c.label} className="xstats__card">
-                <span className="xstats__value">{c.value}</span>
-                <span className="xstats__label">{c.label}</span>
-              </div>
-            ))}
-          </div>
+          <>
+            <div className="xstats__grid">
+              {cards.map((c) => (
+                <div key={c.label} className="xstats__card">
+                  <span className="xstats__value">{c.value}</span>
+                  <span className="xstats__label">{c.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* full per-session log history, not just the top set */}
+            <div className="xstats__history">
+              <p className="xstats__eyebrow">History</p>
+              <ul className="xstats__log-list">
+                {history.map((log, i) => (
+                  <li key={`${log.date}-${i}`} className="xstats__log">
+                    <span className="xstats__log-date">{dateLabel(log.date)}</span>
+                    <span className="xstats__log-sets">
+                      {log.sets
+                        .map((s) => `${toDisplayWeight(s.weight, units)}×${s.reps}`)
+                        .join('  ')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
         )}
       </div>
     </div>

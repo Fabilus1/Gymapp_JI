@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import Header from './components/Header'
 import Splash from './components/Splash'
@@ -36,6 +36,9 @@ const TAB_TITLES: Record<TabId, string> = {
 export default function App() {
   const [tab, setTab] = useState<TabId>('today')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  // true while the post-workout RPE modal is up — hides the rest bar + nav
+  // so neither can sit on top of the modal's slider/buttons.
+  const [finishModalOpen, setFinishModalOpen] = useState(false)
   const data = useAppData()
   const restTimer = useRestTimer()
 
@@ -51,22 +54,11 @@ export default function App() {
     return () => window.clearTimeout(t)
   }, [])
 
-  // Collapsible bottom nav: hide on scroll-down, reveal on scroll-up, and
-  // hide entirely while the keyboard is up so it can't cover search results.
+  // The bottom nav stays put (it's a flex sibling, so it never overlaps
+  // content) — the only time it hides is when the on-screen keyboard is up,
+  // so it can't sit over search results. A scroll-collapse was tried but was
+  // janky and could get stuck, so the nav is now reliably always-visible.
   const keyboardOpen = useKeyboardOpen()
-  const [navHidden, setNavHidden] = useState(false)
-  const lastScrollY = useRef(0)
-  function handleScroll(e: React.UIEvent<HTMLElement>) {
-    const y = e.currentTarget.scrollTop
-    if (y > lastScrollY.current + 6 && y > 48) setNavHidden(true)
-    else if (y < lastScrollY.current - 6) setNavHidden(false)
-    lastScrollY.current = y
-  }
-  // Reset when the screen changes (it remounts scrolled to top).
-  useEffect(() => {
-    setNavHidden(false)
-    lastScrollY.current = 0
-  }, [tab, settingsOpen])
 
   const showSplash = splashHolding || !data.loaded || !data.settings
 
@@ -97,7 +89,7 @@ export default function App() {
         onSettingsClick={settingsOpen ? undefined : () => setSettingsOpen(true)}
         onBack={settingsOpen ? () => setSettingsOpen(false) : undefined}
       />
-      <main className="screen" key={settingsOpen ? 'settings' : tab} onScroll={handleScroll}>
+      <main className="screen" key={settingsOpen ? 'settings' : tab}>
         {settingsOpen ? (
           <SettingsScreen />
         ) : (
@@ -128,6 +120,10 @@ export default function App() {
                 onSetLogged={(isCompound) =>
                   restTimer.start(isCompound ? REST_COMPOUND : REST_ISOLATION)
                 }
+                onFinishModalChange={(open) => {
+                  setFinishModalOpen(open)
+                  if (open) restTimer.cancel() // no rest countdown during the RPE prompt
+                }}
               />
             )}
             {tab === 'plan' && <PlannerScreen />}
@@ -137,14 +133,14 @@ export default function App() {
           </>
         )}
       </main>
-      {!settingsOpen && showRestBar && (
+      {!settingsOpen && !finishModalOpen && showRestBar && (
         <RestTimer
           timer={restTimer}
           showPresets={tab === 'log' && data.activeSession !== null}
         />
       )}
-      {!settingsOpen && !keyboardOpen && (
-        <BottomNav active={tab} onChange={setTab} hidden={navHidden} />
+      {!settingsOpen && !keyboardOpen && !finishModalOpen && (
+        <BottomNav active={tab} onChange={setTab} />
       )}
       <Toast />
       {!keyboardOpen && <InstallHint />}

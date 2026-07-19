@@ -10,7 +10,8 @@ export const EXERCISE_ALIASES: Record<string, string> = {
   'x-calf-press-on-leg-press': 'leg-press-calf-raise',
   'x-machine-incline-chest-press': 'incline-machine-press',
   'x-machine-seated-row': 'machine-row',
-  'x-smith-machine-stiff-leg-deadlift': 'rdl-smith',
+  // NOT aliased: a Smith stiff-leg deadlift is a distinct lift from the Smith
+  // RDL (straighter knees, different hinge), so it stays as its own exercise.
   'x-machine-leg-extension': 'leg-extension',
   'x-machine-ab-crunch': 'machine-crunch',
   'x-cable-lat-pulldown-wide-grip': 'wide-grip-lat-pulldown-cable',

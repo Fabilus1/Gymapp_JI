@@ -1,5 +1,37 @@
-import type { WorkoutSession } from '../types'
+import type { SetEntry, WorkoutSession } from '../types'
 import { canonicalId } from '../data/aliases'
+
+export interface ExerciseLog {
+  date: string
+  sets: SetEntry[] // working sets logged that session (warmups excluded)
+}
+
+/**
+ * Per-session log history for one exercise, most-recent first — so you can see
+ * every previous session's actual sets, not just the top set. Empty-guarded.
+ */
+export function exerciseHistory(
+  sessions: WorkoutSession[] | undefined,
+  exerciseId: string
+): ExerciseLog[] {
+  if (!sessions?.length) return []
+  const target = canonicalId(exerciseId)
+  const out: ExerciseLog[] = []
+  for (const session of sessions) {
+    const sets: SetEntry[] = []
+    for (const entry of session?.exercises ?? []) {
+      if (canonicalId(entry?.exerciseId ?? '') !== target) continue
+      for (const set of entry?.sets ?? []) {
+        if (set?.type === 'W') continue
+        if ((set?.weight ?? 0) <= 0 && (set?.reps ?? 0) <= 0) continue
+        sets.push(set)
+      }
+    }
+    if (sets.length > 0) out.push({ date: session.date, sets })
+  }
+  // sessions are already newest-first from the store, but sort defensively
+  return out.sort((a, b) => b.date.localeCompare(a.date))
+}
 
 export interface ExerciseStats {
   sessionCount: number

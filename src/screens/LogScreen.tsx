@@ -85,12 +85,16 @@ export default function LogScreen({
   onCancel,
   onGoToday,
   onSetLogged,
+  onFinishModalChange,
 }: {
   onFinish: (rpe?: number) => void
   onCancel: () => void
   onGoToday: () => void
   /** fired when a set is confirmed, so the parent can auto-start the rest timer */
   onSetLogged: (isCompound: boolean) => void
+  /** fired when the RPE finish modal opens/closes, so the parent can clear the
+   * rest bar + bottom nav that would otherwise sit on top of it */
+  onFinishModalChange: (open: boolean) => void
 }) {
   const { activeSession: session, sessions, units, updateActiveSession: onChange } = useApp()
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -282,6 +286,7 @@ export default function LogScreen({
       return
     }
     setFinishOpen(true) // ask for exhaustion/RPE before saving
+    onFinishModalChange(true) // clear rest bar + nav so they can't cover it
   }
 
   function handleCancel() {
@@ -657,9 +662,13 @@ export default function LogScreen({
         <FinishModal
           onConfirm={(rpe) => {
             setFinishOpen(false)
+            onFinishModalChange(false)
             onFinish(rpe)
           }}
-          onClose={() => setFinishOpen(false)}
+          onClose={() => {
+            setFinishOpen(false)
+            onFinishModalChange(false)
+          }}
         />
       )}
 
